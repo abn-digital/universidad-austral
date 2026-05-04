@@ -49,100 +49,119 @@ const studentData = {
     ]
 };
 
-const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXX/exec';
-
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('delivery-form');
     const comisionSelect = document.getElementById('comision');
-    const alumnoSelect = document.getElementById('nombre'); // Cambiado a select en el HTML
-    const emailInput = document.getElementById('email');
+    const integrantesContainer = document.getElementById('integrantes-container');
+    const addIntegranteBtn = document.getElementById('add-integrante');
+    const linksContainer = document.getElementById('links-container');
+    const addLinkBtn = document.getElementById('add-link');
     const adminTrigger = document.getElementById('admin-trigger');
 
-    // Manejar cambio de comisión para filtrar alumnos
-    comisionSelect.addEventListener('change', (e) => {
-        const comision = e.target.value;
-        alumnoSelect.innerHTML = '<option value="">Seleccionar alumno...</option>';
-        emailInput.value = '';
+    let integranteCount = 0;
 
-        if (comision && studentData[comision]) {
-            studentData[comision].forEach(student => {
-                const opt = document.createElement('option');
-                opt.value = student.name;
-                opt.textContent = student.name;
-                opt.dataset.email = student.email;
-                alumnoSelect.appendChild(opt);
+    // Función para crear un selector de alumno
+    function createIntegranteSelector() {
+        if (integranteCount >= 5) return;
+        integranteCount++;
+
+        const div = document.createElement('div');
+        div.className = 'integrante-row';
+        div.style = 'display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;';
+        
+        const currentComision = comisionSelect.value;
+        let options = '<option value="">Seleccionar alumno...</option>';
+        
+        if (currentComision && studentData[currentComision]) {
+            studentData[currentComision].forEach(s => {
+                options += `<option value="${s.name}" data-email="${s.email}">${s.name}</option>`;
             });
         }
-    });
 
-    // Auto-completar email al seleccionar alumno
-    alumnoSelect.addEventListener('change', (e) => {
-        const selectedOpt = alumnoSelect.options[alumnoSelect.selectedIndex];
-        emailInput.value = selectedOpt.dataset.email || '';
-    });
+        div.innerHTML = `
+            <div>
+                <label>Integrante ${integranteCount}</label>
+                <select class="alumno-select" required>${options}</select>
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="email" class="alumno-email" readonly placeholder="Auto-completado">
+            </div>
+        `;
 
-    // Handle Form Submission
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = form.querySelector('button');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Enviando...';
-            btn.disabled = true;
+        integrantesContainer.appendChild(div);
 
-            const data = {
-                event: 'finished_case',
-                timestamp: new Date().toISOString(),
-                comision: comisionSelect.value,
-                nombre: alumnoSelect.value,
-                email: emailInput.value,
-                empresa: document.getElementById('empresa').value,
-                url_web: document.getElementById('url-web').value,
-                comments: document.getElementById('comentarios').value
-            };
-
-            try {
-                console.log('Enviando datos:', data);
-                // Aquí va el fetch real al webhook
-                setTimeout(() => {
-                    alert('¡Excelente entrega, ' + data.nombre + '! Ya podés ver tu proyecto online.');
-                    form.reset();
-                    alumnoSelect.innerHTML = '<option value="">Seleccionar alumno...</option>';
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 1000);
-            } catch (error) {
-                alert('Error al enviar. Avisá por WhatsApp.');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+        // Auto-complete email logic
+        const select = div.querySelector('.alumno-select');
+        const emailInput = div.querySelector('.alumno-email');
+        select.addEventListener('change', () => {
+            const selected = select.options[select.selectedIndex];
+            emailInput.value = selected.dataset.email || '';
         });
     }
 
+    // Inicializar con un integrante
+    createIntegranteSelector();
+
+    // Agregar integrantes
+    addIntegranteBtn.addEventListener('click', createIntegranteSelector);
+
+    // Manejar cambio de comisión (resetear integrantes)
+    comisionSelect.addEventListener('change', () => {
+        integrantesContainer.innerHTML = '';
+        integranteCount = 0;
+        createIntegranteSelector();
+    });
+
+    // Agregar Links
+    addLinkBtn.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'url';
+        input.name = 'project-link';
+        input.placeholder = 'https://...';
+        input.style = 'margin-bottom: 0.5rem;';
+        linksContainer.appendChild(input);
+    });
+
+    // Form Submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        btn.innerHTML = 'Enviando proyecto...';
+        btn.disabled = true;
+
+        const integrantes = Array.from(document.querySelectorAll('.integrante-row')).map(row => ({
+            nombre: row.querySelector('.alumno-select').value,
+            email: row.querySelector('.alumno-email').value
+        })).filter(i => i.nombre);
+
+        const links = Array.from(document.querySelectorAll('input[name="project-link"]')).map(i => i.value).filter(v => v);
+
+        const payload = {
+            comision: comisionSelect.value,
+            empresa: document.getElementById('empresa').value,
+            integrantes: integrantes,
+            links: links,
+            comments: document.getElementById('comentarios').value,
+            timestamp: new Date().toISOString()
+        };
+
+        console.log('Payload Final:', payload);
+
+        setTimeout(() => {
+            alert('¡Entrega grupal recibida! Éxitos en la presentación final.');
+            form.reset();
+            integrantesContainer.innerHTML = '';
+            integranteCount = 0;
+            createIntegranteSelector();
+            btn.innerHTML = 'Enviar Entrega Grupal';
+            btn.disabled = false;
+        }, 1500);
+    });
+
     // Admin Access
     adminTrigger.addEventListener('click', () => {
-        const password = prompt('Admin Access:');
-        if (password === 'hike2026') showAdminPanel();
+        const pass = prompt('Admin Pass:');
+        if (pass === 'hike2026') alert('Panel Admin en desarrollo - Los datos se están enviando a la consola.');
     });
 });
-
-function showAdminPanel() {
-    const overlay = document.createElement('div');
-    overlay.style = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; padding: 4rem 2rem; overflow-y: auto;`;
-    overlay.innerHTML = `
-        <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
-                <h2>Admin Panel <span>Austral</span></h2>
-                <button id="close-admin" class="btn-primary">Cerrar</button>
-            </div>
-            <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 1rem; overflow: hidden; border: 1px solid var(--border);">
-                <thead style="background: var(--dark); color: white; text-align: left;">
-                    <tr><th style="padding: 1rem;">Alumno</th><th style="padding: 1rem;">Empresa</th><th style="padding: 1rem;">Comisión</th><th style="padding: 1rem;">Link</th></tr>
-                </thead>
-                <tbody><tr><td colspan="4" style="padding: 3rem; text-align: center;">Cargando entregas...</td></tr></tbody>
-            </table>
-        </div>`;
-    document.body.appendChild(overlay);
-    document.getElementById('close-admin').onclick = () => overlay.remove();
-}
