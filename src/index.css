@@ -692,80 +692,92 @@ input:focus, select:focus, textarea:focus {
   color: #166534;
 }
 
-/* ─── Timeline ─── */
-.timeline { display: flex; flex-direction: column; gap: 0; }
-.timeline-item {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 2rem;
-  padding: 2.5rem 0;
-  border-bottom: 1px solid var(--border);
-  align-items: start;
-}
-.timeline-item:last-child { border-bottom: none; }
-.timeline-week {
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--accent);
-  padding-top: 0.2rem;
-}
-.timeline-content strong { display: block; margin-bottom: 0.5rem; }
-.timeline-content p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
-
-/* ─── Mistakes Box ─── */
-.mistakes-box {
-  background: #FFF8F0;
-  border: 1px solid rgba(230,150,0,0.15);
-  padding: 4rem;
-  border-radius: var(--radius-xl);
-}
-.mistakes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2.5rem;
-}
-.mistake-item {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-.mistake-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
-.mistake-item strong { display: block; margin-bottom: 0.4rem; }
-.mistake-item p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
-
-/* ─── Checklist ─── */
-.checklist-box {
-  background: #F0F7FF;
-  border: 1px solid rgba(0,100,200,0.1);
-  padding: 4rem;
-  border-radius: var(--radius-xl);
-}
-.checklist-grid {
+/* ─── Calendar ─── */
+.calendar-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+  gap: 2rem;
 }
+.cal-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+}
+.cal-date {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--yellow);
+  display: block;
+  margin-bottom: 1rem;
+}
+.cal-card h3 { color: white; margin-bottom: 1rem; }
+.cal-card p { color: rgba(255,255,255,0.6); font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.5rem; }
+.cal-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.4rem 0.9rem;
+  border-radius: 99rem;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+}
+.cal-tag--optional {
+  background: rgba(244,235,51,0.15);
+  color: var(--yellow);
+}
+
+.deadlines-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+.deadline-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+.deadline-item--warn { border-color: rgba(244,235,51,0.2); }
+.deadline-icon { font-size: 1.3rem; }
+.deadline-item strong { color: white; font-size: 0.85rem; display: block; }
+.deadline-date { color: var(--yellow); font-size: 0.8rem; font-weight: 700; }
+
+/* ─── Checklist ─── */
+.checklist-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 4rem;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+.checklist-header h3 { font-size: 1.3rem; margin-top: 0.5rem; }
+.checklist-items { display: flex; flex-direction: column; gap: 0.5rem; }
 .check-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   font-size: 0.95rem;
   cursor: pointer;
-  padding: 0.75rem 1rem;
+  padding: 0.9rem 1.2rem;
   border-radius: 0.75rem;
   transition: 0.2s;
+  color: var(--text);
 }
-.check-item:hover { background: white; }
+.check-item:hover { background: #F8F7F6; }
 .check-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   accent-color: var(--accent-dark);
   margin: 0;
   padding: 0;
-  border-radius: 4px;
 }
 
 /* ─── Glassmorphism (utility) ─── */
@@ -819,6 +831,9 @@ input:focus, select:focus, textarea:focus {
     gap: 3rem;
   }
   .fame-grid { grid-template-columns: 1fr; }
+  .calendar-grid { grid-template-columns: 1fr; }
+  .deadlines-row { grid-template-columns: 1fr; }
+  .checklist-card { grid-template-columns: 1fr; padding: 3rem 2rem; gap: 2rem; }
   .delivery-section { padding: 7rem 0; }
   .form-card { padding: 4rem 2rem; }
   .form-grid {
