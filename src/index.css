@@ -1,15 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg: #FFFFFF;
-  --surface: #F9F7F5;
-  --dark: #0F0F10;
-  --accent: #2D1B4E;
+  --bg: #FCF9F7;
+  --surface: #FFFFFF;
+  --dark: #1A0A2E;
+  --accent: #7E6E94;
+  --accent-dark: #2D1B4E;
   --yellow: #F4EB33;
-  --text: #1A1A1C;
-  --text-dim: #66666E;
-  --border: rgba(0, 0, 0, 0.08);
-  --transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --text: #1A1420;
+  --text-dim: #6B6272;
+  --border: rgba(26, 20, 32, 0.06);
+  --glass: rgba(255, 255, 255, 0.8);
+  --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,81 +21,136 @@ body {
   background-color: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-.container { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
 
-section { padding: 8rem 0; border-bottom: 1px solid var(--border); }
+section { padding: 8rem 0; }
 
 /* Typography */
-h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--dark); }
-h1 span { color: var(--text-dim); font-weight: 300; }
+h1 { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 300; letter-spacing: -0.04em; line-height: 1.1; color: var(--text); }
+h1 span { font-weight: 600; font-style: italic; color: var(--accent-dark); }
 
-h2 { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
-h2 span { color: var(--text-dim); font-weight: 300; }
+h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 300; letter-spacing: -0.02em; line-height: 1.2; }
+h2 span { color: var(--accent-dark); font-weight: 600; font-style: italic; }
 
 .eyebrow {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.3em;
   color: var(--accent);
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   display: block;
 }
 
-/* Cards */
-.card {
-  padding: 2.5rem;
+/* Hike Premium Cards */
+.hike-card {
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 2rem;
+  padding: 3rem;
   transition: var(--transition);
-  background: white;
 }
 
-.card:hover {
-  border-color: var(--dark);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+.hike-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(45, 27, 78, 0.15);
+  box-shadow: 0 30px 60px rgba(45, 27, 78, 0.05);
+}
+
+/* Glassmorphism */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 2rem;
 }
 
 /* Buttons */
 .btn-primary {
   background: var(--dark);
   color: white;
-  padding: 1rem 2rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
+  padding: 1.25rem 2.5rem;
+  border-radius: 99rem;
+  font-weight: 700;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   transition: var(--transition);
   border: none;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  background: #222;
-  transform: translateY(-2px);
+  background: var(--accent-dark);
+  transform: scale(1.03);
 }
 
-/* Tables & Lists */
-table { width: 100%; border-collapse: collapse; margin-top: 2rem; }
-th { text-align: left; padding: 1rem; border-bottom: 2px solid var(--dark); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
-td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-
-.badge {
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  background: var(--surface);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent);
+/* Hero Aura */
+.hero-aura {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(244, 235, 51, 0.08) 0%, rgba(126, 110, 148, 0.05) 50%, transparent 100%);
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
 }
 
-.dark-mode {
+/* Form Styling - "Mucho Amor" */
+.form-card {
+  background: white;
+  padding: 4rem;
+  border-radius: 3rem;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.03);
+  border: 1px solid var(--border);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 1.25rem;
+  background: #F8F7F6;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: var(--transition);
+  margin-bottom: 2rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  background: white;
+  border-color: var(--accent-dark);
+  box-shadow: 0 10px 30px rgba(45, 27, 78, 0.04);
+}
+
+.dark-section {
   background: var(--dark);
   color: white;
+  border-radius: 4rem;
+  margin: 1rem;
+  padding: 8rem 0;
 }
-.dark-mode .eyebrow { color: var(--yellow); }
-.dark-mode h2 span { color: rgba(255,255,255,0.4); }
+
+.tool-tag {
+  padding: 0.5rem 1rem;
+  border-radius: 99rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.tool-tag:hover {
+  background: var(--yellow);
+  color: var(--dark);
+}

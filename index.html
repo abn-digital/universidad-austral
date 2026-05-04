@@ -8,106 +8,91 @@
 </head>
 <body>
 
-    <!-- Header / Nav -->
-    <nav style="padding: 2rem 0; border-bottom: 1px solid var(--border);">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+    <!-- Hero Section -->
+    <header style="position: relative; padding-top: 4rem; overflow: hidden;">
+        <div class="hero-aura"></div>
+        
+        <nav class="container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8rem;">
             <div style="display: flex; align-items: center; gap: 1.5rem;">
-                <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Austral" style="height: 32px;">
-                <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike" style="height: 20px;">
+                <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Austral" style="height: 40px;">
+                <div style="width: 1px; height: 24px; background: var(--border);"></div>
+                <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike" style="height: 28px;">
             </div>
             <div style="display: flex; gap: 2rem;">
-                <a href="#toolbox" class="eyebrow" style="margin:0; text-decoration:none; color: var(--text);">Recursos</a>
-                <a href="#deliver" class="eyebrow" style="margin:0; text-decoration:none; color: var(--text);">Entrega</a>
+                <a href="#challenge" class="eyebrow" style="margin:0; text-decoration:none;">Herramientas</a>
+                <a href="#deliver" class="eyebrow" style="margin:0; text-decoration:none;">Entregar</a>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Hero: Pure Typography -->
-    <header style="padding: 10rem 0 6rem 0;">
-        <div class="container">
-            <span class="eyebrow">Taller de Ingeniería Q1 2026</span>
-            <h1>Dashboarding + AI. <span>Contar historias con datos.</span></h1>
-            <p style="margin-top: 2.5rem; font-size: 1.5rem; color: var(--text-dim); max-width: 700px; font-weight: 300; line-height: 1.4;">
-                El objetivo es que aprendan a materializar una visión técnica. El desafío: construir una marca completa usando flujos agénticos y activos generativos.
+        <div class="container" style="padding-bottom: 6rem;">
+            <span class="eyebrow">Ingeniería Q1 2026 — Austral</span>
+            <h1>Taller de IA: <span>Storytelling & Data.</span></h1>
+            <p style="margin-top: 2rem; font-size: 1.5rem; color: var(--text-dim); max-width: 650px; font-weight: 300; line-height: 1.4;">
+                Imaginá una marca desde cero y materializala usando herramientas de IA. No estamos haciendo una empresa, estamos aprendiendo a contar historias.
             </p>
-            <div style="margin-top: 4rem;">
-                <a href="#deliver" class="btn-primary">Ir a entrega final ↗</a>
+            <div style="margin-top: 3.5rem; display: flex; gap: 1.5rem;">
+                <a href="#deliver" class="btn-primary">Hacer mi entrega final ↗</a>
             </div>
         </div>
     </header>
 
-    <!-- Criterios A+ -->
+    <!-- The Roadmap Section -->
     <section class="container">
-        <span class="eyebrow">Evaluación</span>
-        <h2>The <span>A+ Roadmap.</span></h2>
-        <p style="color: var(--text-dim); margin-bottom: 3rem;">No evaluamos solo el resultado, evaluamos la integración y el criterio.</p>
+        <span class="eyebrow">The Evaluation</span>
+        <h2 style="margin-bottom: 4rem;">The <span>A+ Roadmap.</span></h2>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">1. Cohesión Visual</h3>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">¿El logo, el jingle y la web parecen de la misma marca? El manual de marca es clave aquí.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="hike-card">
+                <span class="eyebrow" style="color: var(--accent); margin-bottom: 1.5rem;">01</span>
+                <h3 style="font-weight: 600; margin-bottom: 1rem;">Cohesión Visual</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">¿El logo, el jingle y la web parecen de la misma marca? El manual de marca es el corazón de la entrega.</p>
             </div>
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">2. Integración Técnica</h3>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">El video y el audio no deben estar en un link suelto, deben vivir dentro de la landing page.</p>
+            <div class="hike-card">
+                <span class="eyebrow" style="color: var(--accent); margin-bottom: 1.5rem;">02</span>
+                <h3 style="font-weight: 600; margin-bottom: 1rem;">Integración Total</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Los activos generativos (video, audio) deben estar embebidos y ser funcionales dentro de la landing page.</p>
             </div>
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">3. Storytelling de Datos</h3>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">El dashboard debe contar qué pasa en la empresa. La data debe tener sentido estratégico.</p>
+            <div class="hike-card">
+                <span class="eyebrow" style="color: var(--accent); margin-bottom: 1.5rem;">03</span>
+                <h3 style="font-weight: 600; margin-bottom: 1rem;">Historia de Datos</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">El dashboard no son solo gráficos sueltos, debe contar la realidad estratégica de tu empresa imaginaria.</p>
             </div>
         </div>
     </section>
 
-    <!-- Toolbox: Comparativa -->
-    <section id="toolbox" class="container" style="background: var(--surface); border-radius: 2rem; margin: 0 1rem; padding: 6rem 2rem;">
-        <span class="eyebrow">AI Toolbox</span>
-        <h2>¿Qué herramienta <span>utilizar?</span></h2>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Categoría</th>
-                    <th>Herramientas sugeridas</th>
-                    <th>Cuándo usarla</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><b>Web Builders</b></td>
-                    <td>v0.dev, Lovable, Bolt.new</td>
-                    <td>Para prototipado rápido de UI y componentes React/Tailwind.</td>
-                </tr>
-                <tr>
-                    <td><b>Visuals & Logos</b></td>
-                    <td>Midjourney, NanoBanana, DALL-E</td>
-                    <td>Para manual de marca y activos visuales de alta calidad.</td>
-                </tr>
-                <tr>
-                    <td><b>Video & Ads</b></td>
-                    <td>Runway Gen-3, Veo, Luma Dream Machine</td>
-                    <td>Para generar anuncios de producto cinematográficos.</td>
-                </tr>
-                <tr>
-                    <td><b>Audio & Music</b></td>
-                    <td>Suno AI, Udio</td>
-                    <td>Para el jingle oficial. El jingle es la voz de tu marca.</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Prompting Tips -->
-    <section class="container">
-        <span class="eyebrow">Pro Tips</span>
-        <h2>Prompting <span>Masterclass.</span></h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 3rem;">
-            <div>
-                <h4 style="margin-bottom: 1rem;">Chain of Thought (CoT)</h4>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">Pedile a la IA que "piense paso a paso" antes de darte el código final. Esto reduce errores en un 40%.</p>
+    <!-- AI Toolbox (Dark Hike Style) -->
+    <section id="challenge" class="dark-section">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 6rem;">
+                <span class="eyebrow" style="color: rgba(255,255,255,0.4);">Resources</span>
+                <h2 style="color: white;">Tus aliados para <span>crear.</span></h2>
             </div>
-            <div>
-                <h4 style="margin-bottom: 1rem;">Persona Assignment</h4>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">Iniciá tus prompts con "Actuá como un Senior Frontend Developer" o "Experto en Branding". El tono cambia drásticamente.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <div class="glass" style="padding: 3rem; background: rgba(255,255,255,0.03);">
+                    <h3 style="color: white; margin-bottom: 1.5rem;">Estrategia</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem; font-size: 0.9rem;">Para el core del negocio y copy.</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="https://chatgpt.com" target="_blank" class="tool-tag">ChatGPT</a>
+                        <a href="https://gemini.google.com" target="_blank" class="tool-tag">Gemini</a>
+                    </div>
+                </div>
+                <div class="glass" style="padding: 3rem; background: rgba(255,255,255,0.03);">
+                    <h3 style="color: white; margin-bottom: 1.5rem;">Visuals</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem; font-size: 0.9rem;">Para logos y manual de marca.</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="https://nanobanana.com" target="_blank" class="tool-tag" style="background: var(--yellow); color: var(--dark);">NanoBanana 🍌</a>
+                        <a href="https://midjourney.com" target="_blank" class="tool-tag">Midjourney</a>
+                    </div>
+                </div>
+                <div class="glass" style="padding: 3rem; background: rgba(255,255,255,0.03);">
+                    <h3 style="color: white; margin-bottom: 1.5rem;">Web</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem; font-size: 0.9rem;">Para buildear la landing page.</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="https://v0.dev" target="_blank" class="tool-tag">v0.dev</a>
+                        <a href="https://lovable.dev" target="_blank" class="tool-tag">Lovable</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -115,66 +100,80 @@
     <!-- Hall of Fame -->
     <section class="container">
         <span class="eyebrow">Hall of Fame</span>
-        <h2>Casos de <span>Éxito.</span></h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-            <a href="https://polotallerexcel.vercel.app/shop" target="_blank" class="card" style="text-decoration:none; color:inherit;">
-                <h4 style="margin-bottom: 0.5rem;">Polo ↗</h4>
-                <p style="font-size: 0.8rem; color: var(--text-dim);">E-commerce minimalista e integración perfecta.</p>
-            </a>
-            <a href="https://paula-shine-studio.lovable.app" target="_blank" class="card" style="text-decoration:none; color:inherit;">
-                <h4 style="margin-bottom: 0.5rem;">Paula Shine ↗</h4>
-                <p style="font-size: 0.8rem; color: var(--text-dim);">Identidad visual cohesiva y despliegue técnico.</p>
-            </a>
+        <h2 style="margin-bottom: 4rem;">Casos de <span>Inspiración.</span></h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+            <div class="hike-card" style="padding: 2.5rem;">
+                <h3 style="margin-bottom: 1rem;">Polo</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 2rem;">E-commerce minimalista e integración perfecta.</p>
+                <a href="https://polotallerexcel.vercel.app/shop" target="_blank" class="eyebrow" style="color: var(--accent-dark); text-decoration: underline;">Ver proyecto ↗</a>
+            </div>
+            <div class="hike-card" style="padding: 2.5rem;">
+                <h3 style="margin-bottom: 1rem;">Paula Shine</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 2rem;">Identidad visual cohesiva y despliegue técnico.</p>
+                <a href="https://paula-shine-studio.lovable.app" target="_blank" class="eyebrow" style="color: var(--accent-dark); text-decoration: underline;">Ver proyecto ↗</a>
+            </div>
         </div>
     </section>
 
-    <!-- Entrega Final -->
-    <section id="deliver" class="container" style="border-bottom:none; padding-bottom: 10rem;">
-        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
-            <span class="eyebrow">Submission</span>
-            <h2 style="font-size: 4rem; margin-bottom: 4rem;">Formulario de <span>Entrega.</span></h2>
-            
-            <form id="delivery-form" style="text-align: left; background: var(--surface); padding: 4rem; border-radius: 2rem;">
-                <label>Comisión</label>
-                <select id="comision" required>
-                    <option value="">Seleccionar comisión...</option>
-                    <option value="14-16">Martes 14:00 - 16:00</option>
-                    <option value="16-18">Martes 16:00 - 18:00</option>
-                </select>
+    <!-- Submission Portal con "Amor" -->
+    <section id="deliver" style="background: #F0EDE9; padding: 10rem 0;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 6rem;">
+                <span class="eyebrow">Ready to ship?</span>
+                <h2 style="font-size: clamp(2.5rem, 8vw, 4rem);">Darle vida al <span>proyecto.</span></h2>
+            </div>
 
-                <div id="integrantes-container" style="margin-bottom: 2rem;"></div>
-                <button type="button" id="add-integrante" style="width:100%; padding: 1rem; border: 1px dashed var(--border); background:white; border-radius: 0.5rem; cursor:pointer; font-size: 0.8rem; margin-bottom: 2rem;">
-                    + Agregar integrante
-                </button>
+            <form id="delivery-form" class="form-card" style="max-width: 900px; margin: 0 auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;">
+                    
+                    <div>
+                        <span class="eyebrow" style="margin-bottom: 2rem; color: var(--accent-dark);">01. El Equipo</span>
+                        <label>Comisión</label>
+                        <select id="comision" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="14-16">Martes 14:00 - 16:00</option>
+                            <option value="16-18">Martes 16:00 - 18:00</option>
+                        </select>
 
-                <label>Nombre de la Empresa</label>
-                <input type="text" id="empresa" placeholder="Ej: NeoHealth AI" required>
+                        <div id="integrantes-container"></div>
+                        <button type="button" id="add-integrante" style="width:100%; padding: 1rem; border: 1px dashed var(--border); background:none; border-radius: 1rem; color: var(--accent); cursor:pointer; font-size: 0.8rem; font-weight: 700;">
+                            + Agregar integrante
+                        </button>
+                    </div>
 
-                <label>Links (V0, Suno, Video, etc.)</label>
-                <div id="links-container">
-                    <input type="url" name="project-link" placeholder="https://..." required>
+                    <div>
+                        <span class="eyebrow" style="margin-bottom: 2rem; color: var(--accent-dark);">02. El Proyecto</span>
+                        <label>Nombre de la Empresa</label>
+                        <input type="text" id="empresa" placeholder="Ej: NeoHealth AI" required>
+
+                        <label>Links del Proyecto</label>
+                        <div id="links-container">
+                            <input type="url" name="project-link" placeholder="https://..." required>
+                        </div>
+                        <button type="button" id="add-link" style="background:none; border:none; color: var(--accent-dark); cursor:pointer; font-size: 0.8rem; font-weight: 700; margin-bottom: 2.5rem;">
+                            + Agregar otro link
+                        </button>
+
+                        <label>Adjuntos (Logo, PDF)</label>
+                        <input type="file" id="adjuntos" multiple style="background:none; border:none; padding:0; cursor:pointer;">
+                        
+                        <label style="margin-top: 2rem;">Comentarios</label>
+                        <textarea id="comentarios" rows="3" placeholder="Herramientas usadas..."></textarea>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 2rem;">
+                            Enviar Entrega Grupal ↗
+                        </button>
+                    </div>
+
                 </div>
-                <button type="button" id="add-link" style="background:none; border:none; color: var(--accent); cursor:pointer; font-size: 0.8rem; font-weight: 700; margin-bottom: 2rem;">
-                    + Agregar otro link
-                </button>
-
-                <label>Adjuntos (Logo, PDF)</label>
-                <input type="file" id="adjuntos" multiple style="background:none; border:none;">
-
-                <label style="margin-top: 2rem;">Comentarios</label>
-                <textarea id="comentarios" rows="3" placeholder="Herramientas y flujo de trabajo..."></textarea>
-
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 3rem; padding: 1.5rem;">
-                    Enviar Proyecto Final
-                </button>
             </form>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="container" style="padding: 4rem 0; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border);">
-        <p style="font-size: 0.8rem; color: var(--text-dim);">© 2026 Universidad Austral × Hike</p>
-        <button id="admin-trigger" style="background:none; border:none; color: var(--text-dim); cursor:pointer; font-size: 0.75rem;">ADMIN</button>
+    <footer class="container" style="padding: 6rem 0; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border);">
+        <p style="font-size: 0.8rem; color: var(--text-dim); font-weight: 500;">© 2026 Universidad Austral × Hike</p>
+        <button id="admin-trigger" style="background:none; border:none; color: var(--text-dim); cursor:pointer; font-size: 0.75rem; font-weight: 700;">ADMIN</button>
     </footer>
 
     <script type="module" src="./src/main.js"></script>
