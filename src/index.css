@@ -403,14 +403,19 @@ input:focus, select:focus, textarea:focus {
 
 .integrante-row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 2rem;
-  margin-top: 3rem;
-  margin-bottom: 3.5rem;
-  padding-bottom: 3rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 2.5rem;
   border-bottom: 1px solid var(--border);
   position: relative;
-  align-items: flex-end;
+}
+
+.integrante-row input[type="email"] {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  background: #F4F3F2;
 }
 
 .remove-row-btn {
@@ -552,6 +557,140 @@ input:focus, select:focus, textarea:focus {
 .reveal-delay-2 { transition-delay: 0.3s; }
 .reveal-delay-3 { transition-delay: 0.45s; }
 .reveal-delay-4 { transition-delay: 0.6s; }
+
+/* ─── Secondary Button ─── */
+.btn-secondary {
+  background: transparent;
+  color: var(--dark);
+  padding: 1.25rem 2.5rem;
+  border-radius: 99rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.btn-secondary:hover {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+}
+.hero-cta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 4rem;
+}
+
+/* ─── Callout Box ─── */
+.callout {
+  background: #EEE9F8;
+  border-left: 4px solid var(--accent-dark);
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* ─── Deliverable Tags ─── */
+.deliverable-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+.dtag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.9rem;
+  border-radius: 99rem;
+  background: #F0EDE9;
+  color: var(--accent-dark);
+}
+
+/* ─── Evaluation Box ─── */
+.eval-box {
+  background: var(--dark);
+  color: white;
+  padding: 4rem;
+  border-radius: var(--radius-xl);
+}
+.eval-box h3 { color: white; }
+.eval-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3rem;
+}
+.eval-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.eval-score {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--yellow);
+  line-height: 1;
+}
+.eval-item strong { color: white; font-size: 1rem; }
+.eval-item p { color: rgba(255,255,255,0.6); font-size: 0.85rem; line-height: 1.5; }
+
+/* ─── Tool Tips ─── */
+.tool-tip {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+}
+
+/* ─── Prompt Engineering ─── */
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+.prompt-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+}
+.prompt-number {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 1rem;
+}
+.prompt-card h4 { margin-bottom: 0.75rem; font-size: 1rem; }
+.prompt-card > p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+.prompt-example {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.prompt-bad, .prompt-good {
+  font-size: 0.8rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  line-height: 1.5;
+  display: block;
+}
+.prompt-bad {
+  background: #FEF2F2;
+  color: #991B1B;
+}
+.prompt-good {
+  background: #F0FDF4;
+  color: #166534;
+}
 
 /* ─── Glassmorphism (utility) ─── */
 .glass {
