@@ -1,102 +1,3 @@
-<<<<<<< HEAD
-/* Form Styling - "Mucho Amor" y Orden */
-.form-card {
-  background: white;
-  padding: 5rem;
-  border-radius: 3rem;
-  box-shadow: 0 40px 120px rgba(0,0,0,0.03);
-  border: 1px solid var(--border);
-  max-width: 800px !important;
-  margin: 0 auto;
-}
-
-.form-group {
-  margin-bottom: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--accent-dark);
-  letter-spacing: 0.02em;
-}
-
-input, select, textarea {
-  width: 100%;
-  padding: 1.25rem 1.5rem;
-  background: #F9F8F7;
-  border: 1px solid rgba(0,0,0,0.03);
-  border-radius: 1.25rem;
-  font-family: inherit;
-  font-size: 1rem;
-  transition: var(--transition);
-  color: var(--text);
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  background: white;
-  border-color: var(--accent-dark);
-  box-shadow: 0 15px 40px rgba(45, 27, 78, 0.05);
-}
-
-/* Custom File Upload */
-.file-upload-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.file-upload-input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.file-upload-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: #F9F8F7;
-  border: 2px dashed var(--border);
-  border-radius: 1.25rem;
-  color: var(--text-dim);
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-.file-upload-wrapper:hover .file-upload-button {
-  border-color: var(--accent);
-  background: white;
-  color: var(--accent-dark);
-}
-
-#add-integrante, #add-link {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0.5rem 0;
-  text-align: left;
-=======
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
@@ -339,13 +240,12 @@ h3 { font-weight: 600; }
   color: white;
   font-size: 0.75rem;
   text-decoration: none;
->>>>>>> e630ac6 (Refactor: Connect form to Google Sheets, update UX and simplify delivery flow)
   transition: 0.3s;
 }
 
-#add-integrante:hover, #add-link:hover {
-  color: var(--accent-dark);
-  text-decoration: underline;
+.tool-tag:hover {
+  background: var(--yellow);
+  color: var(--dark);
 }
 
 .tool-tag--highlight {
@@ -428,6 +328,9 @@ h3 { font-weight: 600; }
 
 .form-group {
   margin-bottom: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .form-card label {
@@ -436,7 +339,6 @@ h3 { font-weight: 600; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 1.2rem;
   color: var(--accent);
 }
 
@@ -458,6 +360,44 @@ input:focus, select:focus, textarea:focus {
   background: white;
   border-color: var(--accent-dark);
   box-shadow: 0 15px 40px rgba(45, 27, 78, 0.08);
+}
+
+/* Custom File Upload */
+.file-upload-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 3.5rem;
+}
+
+.file-upload-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.file-upload-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.6rem;
+  background: #F8F7F6;
+  border: 2px dashed var(--border);
+  border-radius: 1.25rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.file-upload-wrapper:hover .file-upload-button {
+  border-color: var(--accent);
+  background: white;
+  color: var(--accent-dark);
 }
 
 .integrante-row {
@@ -499,22 +439,28 @@ input:focus, select:focus, textarea:focus {
   transform: scale(1.1);
 }
 
+.add-integrante-btn, .add-link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  text-align: left;
+  transition: 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .add-integrante-btn {
   width: 100%;
   padding: 1.6rem;
   border: 2px dashed var(--border);
   background: rgba(248, 247, 246, 0.4);
   border-radius: 1.25rem;
-  color: var(--accent);
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 700;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  margin-top: 1rem;
 }
 
 .add-integrante-btn:hover {
@@ -524,49 +470,13 @@ input:focus, select:focus, textarea:focus {
 }
 
 .add-link-btn {
-  background: none;
-  border: none;
-  color: var(--accent-dark);
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 800;
   margin-top: 0.5rem;
   margin-bottom: 4rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: 0.3s;
 }
 
-.file-input-wrapper {
-  position: relative;
-  margin-bottom: 3.5rem;
-}
-
-.file-input {
-  width: 100%;
-  padding: 1.3rem;
-  border: 1px solid var(--border);
-  border-radius: 1.25rem;
-  background: #F8F7F6;
-  cursor: pointer;
-}
-
-.file-input::-webkit-file-upload-button {
-  visibility: hidden;
-  display: none;
-}
-
-.file-input::before {
-  content: 'Elegir archivos';
-  display: inline-block;
-  background: var(--dark);
-  color: white;
-  padding: 0.7rem 1.5rem;
-  border-radius: 0.8rem;
-  margin-right: 1.5rem;
-  font-weight: 700;
-  font-size: 0.8rem;
+.add-link-btn:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
 }
 
 .submit-btn {
@@ -720,5 +630,3 @@ input:focus, select:focus, textarea:focus {
   .hero-cta .btn-primary { width: 100%; justify-content: center; }
   .delivery-header h2 { font-size: clamp(2.4rem, 8vw, 3.2rem); }
 }
-
-
