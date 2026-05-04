@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Hike Design System Tokens */
+  --bg: #FCF9F7;
+  --surface: #FFFFFF;
+  --dark: #1A0A2E;
+  --accent: #7E6E94;
+  --accent-dark: #2D1B4E;
+  --yellow: #F4EB33;
+  --text: #1A1420;
+  --text-dim: #6B6272;
+  --border: rgba(26, 20, 32, 0.07);
+  --transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Typography Patterns */
+h1 {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+h1 span {
+  font-weight: 600;
+  font-style: italic;
+  color: var(--accent-dark);
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+/* Layout */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+section {
+  padding: 8rem 0;
+}
+
+/* Components */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  transition: var(--transition);
+}
+
+.card:hover {
+  border-color: rgba(26, 20, 32, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 2.5rem;
+  background: var(--dark);
+  color: white;
+  text-decoration: none;
+  border-radius: 99rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  transform: scale(1.02);
+}
+
+/* Dark Sections */
+.dark-section {
+  background: var(--dark);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-section .eyebrow { color: rgba(255,255,255,0.4); }
+.dark-section h2 span { color: var(--yellow); font-style: italic; }
+
+.accent-blur {
+  position: absolute;
+  width: 40vw;
+  height: 40vw;
+  background: var(--yellow);
+  opacity: 0.03;
+  filter: blur(100px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Forms */
+input, select, textarea {
+  width: 100%;
+  padding: 1rem;
+  background: #F7F4F1;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: white;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-dim);
+}
