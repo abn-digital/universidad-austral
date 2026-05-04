@@ -29,6 +29,7 @@
                 <a href="#prompting" class="eyebrow">Prompting</a>
                 <a href="#inspiration" class="eyebrow">Inspiración</a>
                 <a href="#deliver" class="eyebrow">Entregar</a>
+                <a href="#asistencia" class="eyebrow">Asistencia</a>
             </div>
         </nav>
 
@@ -415,6 +416,74 @@
             </form>
         </div>
     </section>
+
+    <!-- ASISTENCIA -->
+    <section id="asistencia" class="container">
+        <div class="attendance-card reveal">
+            <div class="attendance-header">
+                <span class="eyebrow" style="color: var(--accent-dark);">Asistencia</span>
+                <h3>Dar presente</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 0.5rem;">Seleccioná tu nombre y la clase a la que estás asistiendo.</p>
+            </div>
+            <form id="attendance-form" class="attendance-form">
+                <div class="form-group">
+                    <label for="att-comision">Comisión</label>
+                    <select id="att-comision" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="14-16">Martes 14:00 - 16:00</option>
+                        <option value="16-18">Martes 16:00 - 18:00</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="att-alumno">Tu nombre</label>
+                    <select id="att-alumno" required>
+                        <option value="">Seleccionar comisión primero...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="att-clase">Clase</label>
+                    <select id="att-clase" required>
+                        <option value="">Seleccionar clase...</option>
+                        <option value="clase-1">Clase 1 — Mar 5 Mayo</option>
+                        <option value="clase-2">Clase 2 — Mar 12 Mayo</option>
+                        <option value="clase-3">Clase 3 — Mar 19 Mayo</option>
+                    </select>
+                </div>
+                <label class="declaration-check">
+                    <input type="checkbox" id="att-declaration" required>
+                    <span>Declaro que estuve presente en esta clase. Registrar asistencia falsa puede resultar en la pérdida de la regularidad de la materia.</span>
+                </label>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:1.5rem;">
+                    Registrar asistencia ✓
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ADMIN MODAL -->
+    <div id="admin-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Panel de Administración</h3>
+                <button id="admin-close" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="asistencia-tab">Asistencia</button>
+                <button class="modal-tab" data-tab="entregas-tab">Entregas</button>
+            </div>
+            <div id="asistencia-tab" class="modal-tab-content active">
+                <div class="admin-class-tabs">
+                    <button class="admin-class-btn active" data-class="clase-1">Clase 1 · 5 May</button>
+                    <button class="admin-class-btn" data-class="clase-2">Clase 2 · 12 May</button>
+                    <button class="admin-class-btn" data-class="clase-3">Clase 3 · 19 May</button>
+                </div>
+                <div id="admin-attendance-list" class="admin-list"></div>
+            </div>
+            <div id="entregas-tab" class="modal-tab-content">
+                <div id="admin-submissions-list" class="admin-list"></div>
+            </div>
+        </div>
+    </div>
 
     <div id="toast" class="toast"></div>
 

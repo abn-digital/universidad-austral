@@ -217,11 +217,180 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ─── Admin Access ───
+    const adminModal = document.getElementById('admin-modal');
+    const adminClose = document.getElementById('admin-close');
+    
     adminTrigger.addEventListener('click', () => {
-        const pass = prompt('Admin Pass:');
+        const pass = prompt('Contraseña de administrador:');
         if (pass === 'hike2026') {
-            showToast('Acceso concedido. Redirigiendo a base de datos...');
-            // window.location.href = '...';
+            adminModal.style.display = 'flex';
+            renderAdminPanel();
+        }
+    });
+    
+    adminClose.addEventListener('click', () => {
+        adminModal.style.display = 'none';
+    });
+    
+    adminModal.addEventListener('click', (e) => {
+        if (e.target === adminModal) adminModal.style.display = 'none';
+    });
+
+    // Modal tabs
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Admin class tabs
+    document.querySelectorAll('.admin-class-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.admin-class-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderAttendanceList(btn.dataset.class);
+        });
+    });
+
+    function renderAdminPanel() {
+        renderAttendanceList('clase-1');
+        renderSubmissionsList();
+    }
+
+    function renderAttendanceList(clase) {
+        const list = document.getElementById('admin-attendance-list');
+        const attendance = JSON.parse(localStorage.getItem('austral-attendance') || '[]');
+        const submissions = JSON.parse(localStorage.getItem('austral-submissions') || '[]');
+        
+        const allStudents = [...(studentData['14-16'] || []), ...(studentData['16-18'] || [])];
+        const presentNames = attendance.filter(a => a.clase === clase).map(a => a.nombre);
+        
+        const present = allStudents.filter(s => presentNames.includes(s.name));
+        const absent = allStudents.filter(s => !presentNames.includes(s.name));
+        
+        list.innerHTML = `<p class="admin-counter">${present.length} presentes / ${allStudents.length} totales</p>`;
+        
+        present.forEach(s => {
+            const record = attendance.find(a => a.clase === clase && a.nombre === s.name);
+            list.innerHTML += `<div class="admin-row">
+                <span class="admin-row-name">${s.name}</span>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <span class="admin-row-meta">${record ? new Date(record.timestamp).toLocaleString('es-AR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                    <span class="admin-badge admin-badge--present">Presente</span>
+                </div>
+            </div>`;
+        });
+        absent.forEach(s => {
+            list.innerHTML += `<div class="admin-row">
+                <span class="admin-row-name" style="color:var(--text-dim)">${s.name}</span>
+                <span class="admin-badge admin-badge--absent">Ausente</span>
+            </div>`;
+        });
+    }
+
+    function renderSubmissionsList() {
+        const list = document.getElementById('admin-submissions-list');
+        const submissions = JSON.parse(localStorage.getItem('austral-submissions') || '[]');
+        
+        if (submissions.length === 0) {
+            list.innerHTML = '<p class="admin-empty">No hay entregas registradas todavía.</p>';
+            return;
+        }
+        list.innerHTML = `<p class="admin-counter">${submissions.length} entregas recibidas</p>`;
+        submissions.forEach(s => {
+            list.innerHTML += `<div class="admin-row">
+                <div>
+                    <span class="admin-row-name">${s.empresa}</span>
+                    <span class="admin-row-meta" style="display:block;">${s.integrantes.map(i => i.nombre).join(', ')}</span>
+                </div>
+                <span class="admin-badge admin-badge--submitted">Entregado</span>
+            </div>`;
+        });
+    }
+
+    // Store submissions locally too
+    const originalSubmitHandler = form.onsubmit;
+    form.addEventListener('submit', () => {
+        setTimeout(() => {
+            // After successful submission, store locally
+            const integrantes = Array.from(document.querySelectorAll('.integrante-row')).map(row => ({
+                nombre: row.querySelector('.alumno-select')?.value,
+                email: row.querySelector('.alumno-email')?.value
+            })).filter(i => i.nombre);
+            const sub = {
+                empresa: document.getElementById('empresa').value,
+                integrantes,
+                timestamp: new Date().toISOString()
+            };
+            if (sub.empresa) {
+                const subs = JSON.parse(localStorage.getItem('austral-submissions') || '[]');
+                subs.push(sub);
+                localStorage.setItem('austral-submissions', JSON.stringify(subs));
+            }
+        }, 500);
+    });
+
+    // ─── Attendance Form ───
+    const attForm = document.getElementById('attendance-form');
+    const attComision = document.getElementById('att-comision');
+    const attAlumno = document.getElementById('att-alumno');
+
+    attComision.addEventListener('change', () => {
+        const com = attComision.value;
+        attAlumno.innerHTML = '<option value="">Seleccionar alumno...</option>';
+        if (com && studentData[com]) {
+            studentData[com].forEach(s => {
+                attAlumno.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+            });
+        }
+    });
+
+    attForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombre = attAlumno.value;
+        const clase = document.getElementById('att-clase').value;
+        const declared = document.getElementById('att-declaration').checked;
+
+        if (!nombre || !clase || !declared) {
+            showToast('⚠️ Completá todos los campos y la declaración.');
+            return;
+        }
+
+        // Check if already registered
+        const existing = JSON.parse(localStorage.getItem('austral-attendance') || '[]');
+        if (existing.find(a => a.nombre === nombre && a.clase === clase)) {
+            showToast('Ya registraste asistencia para esta clase.');
+            return;
+        }
+
+        const payload = {
+            type: 'asistencia',
+            comision: attComision.value,
+            nombre: nombre,
+            clase: clase,
+            timestamp: new Date().toISOString()
+        };
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
+
+        try {
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            existing.push(payload);
+            localStorage.setItem('austral-attendance', JSON.stringify(existing));
+            showToast(`✅ Presente registrado: ${nombre}`);
+            attForm.reset();
+        } catch (err) {
+            console.error(err);
+            showToast('❌ Error al registrar. Intentá de nuevo.');
         }
     });
 });

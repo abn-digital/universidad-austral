@@ -517,6 +517,162 @@ input:focus, select:focus, textarea:focus {
   transform: translateY(0);
 }
 
+/* ─── Attendance Card ─── */
+.attendance-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 4rem;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+.attendance-header h3 { font-size: 1.3rem; margin-top: 0.5rem; }
+.attendance-form { display: flex; flex-direction: column; gap: 0; }
+.declaration-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background: #FEF2F2;
+  border: 1px solid rgba(220, 50, 50, 0.1);
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #991B1B;
+}
+.declaration-check input[type="checkbox"] {
+  width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;
+  accent-color: #991B1B;
+}
+
+/* ─── Admin Modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.modal-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.2);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.5rem 3rem 1.5rem;
+}
+.modal-header h3 { font-size: 1.2rem; }
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-dim);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+.modal-close:hover { background: #F0EDE9; }
+.modal-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-tab {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: 0.2s;
+}
+.modal-tab.active {
+  color: var(--accent-dark);
+  border-bottom-color: var(--accent-dark);
+}
+.modal-tab-content { display: none; padding: 2rem 3rem 3rem; }
+.modal-tab-content.active { display: block; }
+.admin-class-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+.admin-class-btn {
+  background: #F0EDE9;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 99rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  color: var(--text-dim);
+}
+.admin-class-btn.active {
+  background: var(--accent-dark);
+  color: white;
+}
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.admin-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.admin-row:last-child { border-bottom: none; }
+.admin-row-name { font-weight: 600; }
+.admin-row-meta { color: var(--text-dim); font-size: 0.8rem; }
+.admin-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 99rem;
+}
+.admin-badge--present { background: #DCFCE7; color: #166534; }
+.admin-badge--absent { background: #FEF2F2; color: #991B1B; }
+.admin-badge--submitted { background: #EEE9F8; color: var(--accent-dark); }
+.admin-empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.admin-counter {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
 /* ─── Footer ─── */
 .footer {
   padding: 10rem 0;
@@ -834,6 +990,9 @@ input:focus, select:focus, textarea:focus {
   .calendar-grid { grid-template-columns: 1fr; }
   .deadlines-row { grid-template-columns: 1fr; }
   .checklist-card { grid-template-columns: 1fr; padding: 3rem 2rem; gap: 2rem; }
+  .attendance-card { grid-template-columns: 1fr; padding: 3rem 2rem; gap: 2rem; }
+  .modal-card { margin: 1rem; }
+  .modal-header, .modal-tabs, .modal-tab-content { padding-left: 2rem; padding-right: 2rem; }
   .delivery-section { padding: 7rem 0; }
   .form-card { padding: 4rem 2rem; }
   .form-grid {
