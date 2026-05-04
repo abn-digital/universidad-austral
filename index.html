@@ -8,139 +8,182 @@
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="container" style="padding-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Austral" style="height: 40px;">
-            <div style="width: 1px; height: 24px; background: var(--border);"></div>
-            <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike" style="height: 28px;">
-        </div>
-        <div style="display: flex; gap: 2rem;">
-            <a href="#challenge" class="eyebrow" style="margin:0; text-decoration:none;">El Desafío</a>
-            <a href="#deliver" class="eyebrow" style="margin:0; text-decoration:none;">Entregar</a>
-        </div>
-    </nav>
+    <!-- Hero Section con Fondo Generado -->
+    <header style="background: url('./public/assets/hero.png') no-repeat center center; background-size: cover; min-height: 90vh; display: flex; align-items: center; position: relative; border-bottom-left-radius: 4rem; border-bottom-right-radius: 4rem; margin: 0 1rem;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(252, 249, 247, 0.4), rgba(252, 249, 247, 0.9));"></div>
+        
+        <div class="container" style="position: relative; z-index: 10;">
+            <nav style="position: absolute; top: -10vh; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Austral" style="height: 40px;">
+                    <div style="width: 1px; height: 24px; background: rgba(0,0,0,0.1);"></div>
+                    <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike" style="height: 28px;">
+                </div>
+                <div style="display: flex; gap: 2rem;">
+                    <a href="#challenge" class="eyebrow" style="margin:0; text-decoration:none; color: var(--dark);">El Desafío</a>
+                    <a href="#deliver" class="eyebrow" style="margin:0; text-decoration:none; color: var(--dark);">Entregar</a>
+                </div>
+            </nav>
 
-    <!-- Hero -->
-    <section class="container" style="padding-top: 4rem;">
-        <span class="eyebrow">Ingeniería Q1 2026 — Austral</span>
-        <h1>Taller de IA: <span>Storytelling & Data.</span></h1>
-        <p style="margin-top: 2rem; font-size: 1.25rem; color: var(--text-dim); max-width: 600px; font-weight: 300;">
-            Imaginá una marca desde cero y materializala usando herramientas de Inteligencia Artificial. No estamos haciendo una empresa, estamos aprendiendo a contar historias.
-        </p>
+            <span class="eyebrow">Ingeniería Q1 2026 — Austral</span>
+            <h1>Taller de IA: <span>Storytelling & Data.</span></h1>
+            <p style="margin-top: 2rem; font-size: 1.5rem; color: var(--text-dim); max-width: 650px; font-weight: 300; line-height: 1.4;">
+                Imaginá una marca desde cero y materializala usando herramientas de Inteligencia Artificial. No estamos haciendo una empresa, estamos aprendiendo a contar historias.
+            </p>
+            <div style="margin-top: 3.5rem; display: flex; gap: 1.5rem;">
+                <a href="#deliver" class="btn-primary">Hacer mi entrega ↗</a>
+                <a href="#challenge" style="text-decoration:none; display: flex; align-items: center;" class="eyebrow">Ver herramientas ↓</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Timeline Section -->
+    <section class="container">
+        <div style="max-width: 800px;">
+            <span class="eyebrow">Hoja de Ruta</span>
+            <h2 style="margin-bottom: 5rem;">Cronograma del <span>Taller.</span></h2>
+            
+            <div class="timeline-item">
+                <div>
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Clase 1 — Lanzamiento</h3>
+                    <p style="color: var(--text-dim);">Martes 5 de Mayo. Introducción al Storytelling con IA y formación de equipos.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div>
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Clase 2 — Prototipado</h3>
+                    <p style="color: var(--text-dim);">Martes 12 de Mayo. Creación de marca, web y activos audiovisuales.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div>
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Clase 3 — Feedback Online</h3>
+                    <p style="color: var(--text-dim);">Martes 19 de Mayo. Revisión opcional de dashboards e integración técnica.</p>
+                </div>
+            </div>
+            <div class="timeline-item" style="border:none;">
+                <div style="padding: 2rem; background: var(--accent-dark); color: white; border-radius: 1.5rem; margin-top: 1rem;">
+                    <h3 style="font-weight: 700; margin-bottom: 0.5rem; color: var(--yellow);">Deadline Final — 2 de Junio</h3>
+                    <p style="color: rgba(255,255,255,0.7);">Cierre de entregas en este portal. Luego de esta fecha, la nota máxima es 4.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- The Challenge -->
-    <section id="challenge" class="dark-section">
-        <div class="accent-blur" style="top: -10%; left: -10%;"></div>
+    <!-- AI Toolbox (Reforzada) -->
+    <section id="challenge" class="dark-section" style="padding: 8rem 0;">
         <div class="container">
-            <span class="eyebrow">El Proyecto Final</span>
-            <h2 style="font-size: 3rem; font-weight: 300; margin-bottom: 4rem;">Construyendo una <span>empresa digital.</span></h2>
+            <div style="text-align: center; margin-bottom: 6rem;">
+                <span class="eyebrow" style="color: rgba(255,255,255,0.4);">AI Toolbox</span>
+                <h2 style="color: white;">Tus aliados para <span>crear.</span></h2>
+            </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <div class="card" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
-                    <span class="eyebrow" style="color: var(--yellow);">01. Branding</span>
-                    <h3 style="color: white; margin-bottom: 1rem;">Identidad Visual</h3>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 1.5rem;">Logo, manual de marca y tono. </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                <!-- Ideas & Copy -->
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <span class="eyebrow" style="color: var(--yellow);">Estrategia</span>
+                    <h3 style="color: white; margin-bottom: 1.5rem;">ChatGPT & Gemini</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem;">Usalos para definir el propósito de tu empresa y el guión de tus videos.</p>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <a href="https://midjourney.com" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Midjourney</a>
-                        <a href="https://openai.com/dall-e-3" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">DALL-E 3</a>
+                        <a href="https://chatgpt.com" target="_blank" class="tool-badge">ChatGPT</a>
+                        <a href="https://gemini.google.com" target="_blank" class="tool-badge">Gemini</a>
                     </div>
                 </div>
-                <div class="card" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
-                    <span class="eyebrow" style="color: var(--yellow);">02. Web</span>
-                    <h3 style="color: white; margin-bottom: 1rem;">Landing Page</h3>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 1.5rem;">Propuesta de valor clara e integración total.</p>
+
+                <!-- Visuals -->
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <span class="eyebrow" style="color: var(--yellow);">Branding</span>
+                    <h3 style="color: white; margin-bottom: 1.5rem;">Midjourney & DALL-E</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem;">Creá el logo y los assets visuales de tu marca con calidad cinematográfica.</p>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <a href="https://v0.dev" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">v0.dev</a>
-                        <a href="https://lovable.dev" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Lovable</a>
-                        <a href="https://bolt.new" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Bolt.new</a>
+                        <a href="https://midjourney.com" target="_blank" class="tool-badge">Midjourney</a>
+                        <a href="https://openai.com/dall-e-3" target="_blank" class="tool-badge">DALL-E 3</a>
+                        <a href="https://nanobanana.com" target="_blank" class="tool-badge">NanoBanana</a>
+                        <a href="https://adobe.com/firefly" target="_blank" class="tool-badge">Firefly</a>
                     </div>
                 </div>
-                <div class="card" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
-                    <span class="eyebrow" style="color: var(--yellow);">03. Audio/Video</span>
-                    <h3 style="color: white; margin-bottom: 1rem;">Jingle & Ad</h3>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 1.5rem;">Anuncio corto y música que respire la marca.</p>
+
+                <!-- Web & Integration -->
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <span class="eyebrow" style="color: var(--yellow);">Code & Web</span>
+                    <h3 style="color: white; margin-bottom: 1.5rem;">v0, Lovable & Bolt</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem;">Construí tu landing page en minutos integrando el video y el jingle.</p>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <a href="https://suno.com" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Suno AI</a>
-                        <a href="https://runwayml.com" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Runway</a>
-                        <a href="https://deepmind.google/technologies/veo/" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Veo</a>
-                    </div>
-                </div>
-                <div class="card" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
-                    <span class="eyebrow" style="color: var(--yellow);">04. Dashboard</span>
-                    <h3 style="color: white; margin-bottom: 1rem;">Métricas</h3>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 1.5rem;">Visualizá el impacto y la historia de los datos.</p>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <a href="https://lookerstudio.google.com" target="_blank" class="eyebrow" style="font-size: 8px; color: var(--yellow); text-decoration: underline;">Looker Studio</a>
+                        <a href="https://v0.dev" target="_blank" class="tool-badge">v0.dev</a>
+                        <a href="https://lovable.dev" target="_blank" class="tool-badge">Lovable</a>
+                        <a href="https://bolt.new" target="_blank" class="tool-badge">Bolt.new</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Submission Form -->
-    <section id="deliver" class="container">
-        <div style="max-width: 800px; margin: 0 auto;">
-            <span class="eyebrow">Ready to ship?</span>
-            <h2 style="font-size: 2.5rem; margin-bottom: 3rem;">Entrega Final en Grupo</h2>
-            
-            <form id="delivery-form">
-                <!-- Comisión -->
-                <div class="card" style="margin-bottom: 2rem;">
-                    <label>Comisión</label>
-                    <select id="comision" required>
-                        <option value="">Seleccionar comisión...</option>
-                        <option value="14-16">Martes 14:00 - 16:00</option>
-                        <option value="16-18">Martes 16:00 - 18:00</option>
-                    </select>
-                </div>
+    <!-- Rediseño Sección Entrega -->
+    <section id="deliver" style="background: #F0EDE9; padding: 10rem 0;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 6rem;">
+                <span class="eyebrow">Submission Portal</span>
+                <h2 style="font-size: 4rem;">Darle vida al <span>proyecto.</span></h2>
+            </div>
 
-                <!-- Integrantes -->
-                <div class="card" style="margin-bottom: 2rem;">
-                    <span class="eyebrow" style="margin-bottom: 1rem;">Integrantes del Grupo (Máximo 5)</span>
-                    <div id="integrantes-container">
-                        <!-- Selects dinámicos aquí -->
-                    </div>
-                    <button type="button" id="add-integrante" class="eyebrow" style="background:none; border: 1px dashed var(--border); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor:pointer; width: 100%;">
-                        + Agregar Integrante
-                    </button>
-                </div>
-
-                <!-- Detalles del Proyecto -->
-                <div class="card" style="margin-bottom: 2rem;">
-                    <span class="eyebrow" style="margin-bottom: 1rem;">Detalles del Proyecto</span>
+            <form id="delivery-form" style="max-width: 900px; margin: 0 auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
                     
-                    <label>Nombre de la Empresa</label>
-                    <input type="text" id="empresa" placeholder="Ej: Hike AI" required>
+                    <!-- Columna 1: El Equipo -->
+                    <div class="glass-card">
+                        <span class="eyebrow" style="margin-bottom: 1.5rem;">01. El Equipo</span>
+                        <label>Comisión</label>
+                        <select id="comision" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="14-16">Martes 14:00 - 16:00</option>
+                            <option value="16-18">Martes 16:00 - 18:00</option>
+                        </select>
 
-                    <label>Links del Proyecto (Web, Dashboard, Videos, etc.)</label>
-                    <div id="links-container">
-                        <input type="url" name="project-link" placeholder="https://..." style="margin-bottom: 0.5rem;">
+                        <div id="integrantes-container">
+                            <!-- Selects dinámicos -->
+                        </div>
+                        <button type="button" id="add-integrante" style="width:100%; padding: 1rem; border: 1px dashed var(--accent); background:none; border-radius: 1rem; color: var(--accent); cursor:pointer; font-size: 0.8rem; font-weight: 600;">
+                            + Agregar integrante al grupo
+                        </button>
                     </div>
-                    <button type="button" id="add-link" class="eyebrow" style="background:none; border:none; color: var(--accent); cursor:pointer; margin-bottom: 2rem;">
-                        + Agregar otro link
-                    </button>
 
-                    <label>Archivos Adjuntos (Logo, Manual, PDF)</label>
-                    <input type="file" id="adjuntos" multiple style="background: none; padding: 0; margin-bottom: 1rem;">
-                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: -1rem; margin-bottom: 2rem;">Podés seleccionar varios archivos a la vez.</p>
+                    <!-- Columna 2: El Proyecto -->
+                    <div class="glass-card">
+                        <span class="eyebrow" style="margin-bottom: 1.5rem;">02. El Proyecto</span>
+                        <label>Nombre de la Empresa</label>
+                        <input type="text" id="empresa" placeholder="Ej: NeoHealth AI" required>
 
-                    <label>Comentarios / Herramientas utilizadas</label>
-                    <textarea id="comentarios" rows="4" placeholder="Contanos qué IAs usaron y cómo integraron todo..."></textarea>
+                        <label>Links (Landing, Dashboard, Video...)</label>
+                        <div id="links-container">
+                            <input type="url" name="project-link" placeholder="https://..." required>
+                        </div>
+                        <button type="button" id="add-link" style="background:none; border:none; color: var(--accent-dark); cursor:pointer; font-size: 0.8rem; font-weight: 700; margin-bottom: 2rem;">
+                            + Agregar otro link
+                        </button>
+
+                        <label>Archivos Adjuntos (Logo, PDF, Manual)</label>
+                        <input type="file" id="adjuntos" multiple style="background:none; border:none; padding:0; cursor:pointer;">
+                        
+                        <label style="margin-top: 2rem;">Comentarios adicionales</label>
+                        <textarea id="comentarios" rows="3" placeholder="Herramientas usadas, desafíos..."></textarea>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 2rem;">
+                            Enviar Entrega Grupal ↗
+                        </button>
+                    </div>
+
                 </div>
-
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; border:none; cursor:pointer;">
-                    Enviar Entrega Grupal
-                </button>
             </form>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="container" style="padding: 4rem 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-        <p style="font-size: 0.8rem; color: var(--text-dim);">© 2026 Universidad Austral × Hike</p>
-        <button id="admin-trigger" style="background:none; border:none; color: var(--text-dim); cursor:pointer; font-size: 0.8rem;">Admin Access</button>
+    <footer class="container" style="padding: 6rem 0; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Austral" style="height: 30px; opacity: 0.6;">
+            <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike" style="height: 20px; opacity: 0.6;">
+        </div>
+        <button id="admin-trigger" style="background:none; border:none; color: var(--text-dim); cursor:pointer; font-size: 0.75rem; font-weight: 600;">ADMIN ACCESS</button>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

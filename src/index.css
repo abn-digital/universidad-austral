@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Hike Design System Tokens */
   --bg: #FCF9F7;
   --surface: #FFFFFF;
   --dark: #1A0A2E;
@@ -10,139 +9,148 @@
   --yellow: #F4EB33;
   --text: #1A1420;
   --text-dim: #6B6272;
-  --border: rgba(26, 20, 32, 0.07);
-  --transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --border: rgba(26, 20, 32, 0.08);
+  --glass: rgba(255, 255, 255, 0.7);
+  --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: var(--bg);
   color: var(--text);
-  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
 }
 
-/* Typography Patterns */
-h1 {
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
+.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 
-h1 span {
-  font-weight: 600;
-  font-style: italic;
-  color: var(--accent-dark);
-}
+section { padding: 10rem 0; }
+
+/* Typography */
+h1 { font-size: clamp(3rem, 10vw, 6rem); font-weight: 300; letter-spacing: -0.04em; line-height: 1.05; }
+h1 span { font-weight: 600; font-style: italic; color: var(--accent-dark); }
+
+h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; letter-spacing: -0.02em; }
+h2 span { color: var(--accent-dark); font-weight: 600; font-style: italic; }
 
 .eyebrow {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.25em;
-  color: var(--text-dim);
-  margin-bottom: 1.5rem;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 2rem;
   display: block;
 }
 
-/* Layout */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-section {
-  padding: 8rem 0;
-}
-
-/* Components */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1.5rem;
-  padding: 2.5rem;
+/* Glass Cards */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 2rem;
+  padding: 3rem;
   transition: var(--transition);
 }
 
-.card:hover {
-  border-color: rgba(26, 20, 32, 0.15);
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+.glass-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent-dark);
+  box-shadow: 0 30px 60px rgba(45, 27, 78, 0.08);
+}
+
+/* Timeline */
+.timeline-item {
+  display: flex;
+  gap: 3rem;
+  padding-bottom: 4rem;
+  border-left: 2px solid var(--border);
+  margin-left: 1rem;
+  padding-left: 3rem;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background: var(--accent-dark);
+  border-radius: 50%;
+}
+
+/* Form Styles - Amor al diseño */
+.delivery-section {
+  background: white;
+  border-radius: 3rem;
+  padding: 6rem 4rem;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.04);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  background: #F8F6F4;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: var(--transition);
+  margin-bottom: 2rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  background: white;
+  border-color: var(--accent-dark);
+  box-shadow: 0 10px 30px rgba(45, 27, 78, 0.05);
 }
 
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem 2.5rem;
   background: var(--dark);
   color: white;
-  text-decoration: none;
+  padding: 1.5rem 3.5rem;
   border-radius: 99rem;
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
   transition: var(--transition);
+  border: none;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
   background: var(--accent-dark);
-  transform: scale(1.02);
+  transform: scale(1.05);
+  box-shadow: 0 20px 40px rgba(26, 10, 46, 0.2);
 }
 
-/* Dark Sections */
 .dark-section {
   background: var(--dark);
   color: white;
-  position: relative;
-  overflow: hidden;
+  border-radius: 4rem;
+  margin: 0 1rem;
 }
 
-.dark-section .eyebrow { color: rgba(255,255,255,0.4); }
-.dark-section h2 span { color: var(--yellow); font-style: italic; }
+.tool-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 99rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.8);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: 0.3s;
+}
 
-.accent-blur {
-  position: absolute;
-  width: 40vw;
-  height: 40vw;
+.tool-badge:hover {
   background: var(--yellow);
-  opacity: 0.03;
-  filter: blur(100px);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-/* Forms */
-input, select, textarea {
-  width: 100%;
-  padding: 1rem;
-  background: #F7F4F1;
-  border: 1px solid transparent;
-  border-radius: 0.75rem;
-  font-family: inherit;
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-  transition: var(--transition);
-}
-
-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: white;
-}
-
-label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-dim);
+  color: var(--dark);
+  border-color: var(--yellow);
 }
