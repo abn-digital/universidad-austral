@@ -12,6 +12,13 @@ Portal académico para el taller de IA de la Universidad Austral (Ingeniería Q1
 - **Firebase Hosting** (proyecto: `hike-agentic-playground`, site: `universidad-austral`)
 - **Google Apps Script** para recibir entregas y asistencia (POST `no-cors`)
 - **Diseño "Hike"**: Inter font, fondo `#FCF9F7`, bordes suaves, dark sections con bordes redondeados
+- **Base de Datos**: Firebase Firestore (Migrado ✅)
+
+## 🏁 Estado del Proyecto
+- [x] **Punto 1: Migración a Firestore** (Completado ✅)
+- [x] **Punto 2: Sincronización Admin en tiempo real** (Completado ✅)
+- [ ] **Punto 3: Optimización Pipeline de Entregas** (En progreso)
+- [ ] **Punto 4: Exportación CSV y Filtros Admin** (Pendiente)
 
 ## 📂 Estructura
 
@@ -59,48 +66,36 @@ Los datos de alumnos están hardcodeados en `src/main.js` (objeto `studentData`)
 
 ## ⚠️ NEXT STEPS (para quien continúe)
 
-### 1. 🔴 CRÍTICO: Migrar almacenamiento de localStorage a Firestore
+### 1. Persistencia de Datos (Firestore)
+Se ha migrado la lógica de `localStorage` a **Firebase Firestore**. Esto permite que:
+- La asistencia sea visible en tiempo real desde cualquier dispositivo.
+- Las entregas de proyectos queden centralizadas en una base de datos única, evitando la pérdida de información si el alumno limpia el caché del navegador.
+- El panel de administración se actualice automáticamente (`onSnapshot`) sin necesidad de recargar la página.
 
-**Problema actual:** La asistencia y las entregas se guardan en `localStorage` del browser. Esto significa que:
-- Solo se ven desde el browser donde se registraron
-- Si el alumno borra el caché, se pierde
-- El admin solo ve los datos de su propio browser
+**Colecciones en Firestore:**
+- `attendance`: Almacena registros de presente (`nombre`, `clase`, `comision`, `timestamp`).
+- `submissions`: Almacena las entregas grupales (`empresa`, `integrantes`, `links`, `comments`, `timestamp`).
 
-**Solución recomendada: Firebase Firestore** (ya tenemos el proyecto `hike-agentic-playground`)
+### 2. Configuración Técnica
+El archivo `src/firebase.js` contiene la inicialización del SDK. El proyecto utiliza la configuración de `hike-agentic-playground`.
 
-```
-Firestore collections:
-├── attendance/          # Docs de asistencia
-│   └── {autoId}
-│       ├── comision: "14-16"
-│       ├── nombre: "Valentina Angeleri"
-│       ├── clase: "clase-1"
-│       └── timestamp: Timestamp
-│
-└── submissions/         # Docs de entregas
-    └── {autoId}
-        ├── comision: "14-16"
-        ├── empresa: "NeoHealth AI"
-        ├── integrantes: [{nombre, email}, ...]
-        ├── links: ["https://...", ...]
-        ├── comments: "..."
-        └── timestamp: Timestamp
-```
+### 3. Panel de Administración
+Acceso: Botón **ADMIN** en el footer.
+Password: `hike2026`
+- **Vista de Asistencia**: Muestra alumnos presentes vs ausentes por clase.
+- **Vista de Entregas**: Listado de proyectos recibidos con integrantes y links.
 
-**Pasos:**
-1. Instalar Firebase JS SDK: `npm install firebase`
-2. Inicializar Firestore en `main.js` con la config del proyecto `hike-agentic-playground`
-3. Reemplazar `localStorage.setItem/getItem` por `addDoc/getDocs` de Firestore
-4. El admin panel pasa a leer directamente de Firestore (tiempo real)
-5. Opcional: Agregar reglas de seguridad para que solo el admin pueda leer todo
+### 4. Estado del Proyecto
+- [x] **Punto 1: Migración a Firestore** (Completado ✅)
+- [x] **Punto 2: Sincronización Admin en tiempo real** (Completado ✅ via onSnapshot)
+- [ ] **Punto 3: Optimización Pipeline de Entregas** (En progreso - Firestore integrado)
+- [ ] **Punto 4: Exportación CSV y Filtros Admin** (Pendiente)
 
-**¿Por qué Firestore y no Google Sheets?**
-- Ya tenemos el proyecto Firebase configurado
-- Firestore tiene SDK nativo para JS → queries en tiempo real
-- Google Sheets requiere un Apps Script intermediario para leer datos (CORS)
-- Firestore escala mejor si hay muchos alumnos registrando al mismo tiempo
+---
 
-### 2. 🟡 IMPORTANTE: Validar el Google Apps Script
+## ⚠️ MEJORAS Y MANTENIMIENTO
+
+### 1. 🟡 IMPORTANTE: Validar el Google Apps Script
 
 El endpoint actual para entregas y asistencia:
 ```
@@ -112,7 +107,7 @@ Verificar en el Google Sheet asociado que:
 - La asistencia (`type: "asistencia"`) se registra en una hoja separada
 - Si el script no diferencia por `type`, hay que agregar un `if` en el Apps Script
 
-### 3. 🟢 NICE TO HAVE: Mejoras de UX
+### 2. 🟢 NICE TO HAVE: Mejoras de UX
 
 - **Notificación visual en asistencia:** Después de dar presente, que el botón cambie a "✓ Presente registrado" y se deshabilite
 - **Exportar a CSV desde el admin:** Botón para descargar la lista de asistencia/entregas
@@ -120,7 +115,7 @@ Verificar en el Google Sheet asociado que:
 - **Animación del modal:** Agregar transición de entrada (scale + fade)
 - **Dark mode toggle:** Los alumnos lo van a usar en clase, puede servir
 
-### 4. 🔵 OPCIONAL: Mejoras de contenido
+### 3. 🔵 OPCIONAL: Mejoras de contenido
 
 - Agregar sección de **FAQ** con preguntas frecuentes de cuatrimestres anteriores
 - Agregar un **contador regresivo** hasta la fecha de entrega (2 de Junio)

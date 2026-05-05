@@ -1,3 +1,17 @@
+import { auth, db, storage } from './firebase.js';
+import { 
+    collection, 
+    addDoc, 
+    onSnapshot, 
+    query, 
+    orderBy, 
+    where, 
+    getDocs,
+    serverTimestamp 
+} from 'firebase/firestore';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 // Data de Alumnos - Taller de IA Austral Q1 2026
 const studentData = {
     "14-16": [
@@ -25,7 +39,8 @@ const studentData = {
         { name: "Augusto Piepenbrink", email: "apiepenbrink@mail.austral.edu.ar" },
         { name: "Josefina Sfilio Glassmann", email: "jsfilioglassmann@mail.austral.edu.ar" },
         { name: "Martina Soto", email: "msoto3@mail.austral.edu.ar" },
-        { name: "Nicolas Martin Torres", email: "nmtorres@mail.austral.edu.ar" }
+        { name: "Nicolas Martin Torres", email: "nmtorres@mail.austral.edu.ar" },
+        { name: "Bauti Ballatore", email: "bballatore@mail.austral.edu.ar" }
     ],
     "16-18": [
         { name: "Mateo Ignacio Aldazabal", email: "maldazabal@mail.austral.edu.ar" },
@@ -68,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminTrigger = document.getElementById('admin-trigger');
 
     let integranteCount = 0;
+    let currentAttendance = [];
+    let currentSubmissions = [];
 
     // ─── Scroll Reveal Animations ───
     const revealElements = document.querySelectorAll('.reveal');
@@ -81,6 +98,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.1 });
 
     revealElements.forEach(el => revealObserver.observe(el));
+
+    // ─── File Upload Preview ───
+    const adjuntosInput = document.getElementById('adjuntos');
+    const fileList = document.getElementById('file-list');
+    const fileUploadLabel = document.getElementById('file-upload-label');
+    const fileUploadWrapper = document.getElementById('file-upload-wrapper');
+
+    function updateFileList(files) {
+        if (!files || files.length === 0) {
+            fileList.style.display = 'none';
+            fileUploadLabel.textContent = '📁 Seleccionar archivos o arrastrar aquí';
+            return;
+        }
+        fileUploadLabel.textContent = `✅ ${files.length} archivo${files.length > 1 ? 's' : ''} seleccionado${files.length > 1 ? 's' : ''}`;
+        fileList.style.display = 'block';
+        fileList.innerHTML = '';
+        Array.from(files).forEach(file => {
+            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+            const li = document.createElement('li');
+            li.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border-radius:6px;margin-bottom:0.4rem;font-size:0.82rem;';
+            li.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${file.name}</span><span style="color:var(--text-dim);font-size:0.75rem;white-space:nowrap;">${sizeMB} MB</span>`;
+            fileList.appendChild(li);
+        });
+    }
+
+    adjuntosInput.addEventListener('change', () => updateFileList(adjuntosInput.files));
+
+    // Drag & drop
+    fileUploadWrapper.addEventListener('dragover', e => { e.preventDefault(); fileUploadWrapper.style.borderColor = 'var(--accent-dark)'; });
+    fileUploadWrapper.addEventListener('dragleave', () => { fileUploadWrapper.style.borderColor = ''; });
+    fileUploadWrapper.addEventListener('drop', e => {
+        e.preventDefault();
+        fileUploadWrapper.style.borderColor = '';
+        adjuntosInput.files = e.dataTransfer.files;
+        updateFileList(e.dataTransfer.files);
+    });
 
     // ─── Integrante Selector ───
     function createIntegranteSelector() {
@@ -186,30 +239,50 @@ document.addEventListener('DOMContentLoaded', () => {
             integrantes: integrantes,
             links: links,
             comments: document.getElementById('comentarios').value,
-            timestamp: new Date().toISOString()
+            timestamp: serverTimestamp()
         };
 
-        // Simulación de envío (Google Script URL opcional)
         const scriptURL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
 
         try {
-            // Nota: El modo 'no-cors' no permite leer la respuesta, pero evita errores de CORS con Google Scripts
-            await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+            // 1. Subir archivos a Firebase Storage
+            btn.innerHTML = 'Subiendo archivos...';
+            const adjuntosFiles = document.getElementById('adjuntos').files;
+            const adjuntosURLs = [];
+
+            if (adjuntosFiles && adjuntosFiles.length > 0) {
+                for (const file of adjuntosFiles) {
+                    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    const storageRef = ref(storage, `submissions/${payload.empresa}/${Date.now()}_${safeName}`);
+                    const snapshot = await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(snapshot.ref);
+                    adjuntosURLs.push({ nombre: file.name, url });
+                }
+            }
+
+            // 2. Guardar en Firestore con URLs de archivos
+            btn.innerHTML = 'Guardando entrega...';
+            await addDoc(collection(db, 'submissions'), {
+                ...payload,
+                adjuntos: adjuntosURLs
             });
 
-            showToast('✅ ¡Entrega recibida! Éxitos en el taller.');
+            // 3. Backup en Google Sheets
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ ...payload, type: 'proyecto', timestamp: new Date().toISOString() })
+            }).catch(e => console.warn('Script backup failed', e));
+
+            showToast(`✅ ¡Entrega recibida! Éxitos en el taller.`);
             form.reset();
             integrantesContainer.innerHTML = '';
             integranteCount = 0;
             createIntegranteSelector();
-        } catch (error) {
-            console.error('Error:', error);
-            showToast('❌ Error al enviar. Verificá tu conexión.');
+            updateFileList(null); // limpiar preview de archivos
+        } catch (err) {
+            console.error('Firebase Error:', err);
+            showToast(`❌ Error: ${err.message || 'Intentá de nuevo'}`);
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -246,39 +319,99 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Admin class tabs
+    // Estado activo de la vista admin
+    let activeClass = 'clase-1';
+    let activeComision = 'all';
+
+    // Admin class tabs (por clase)
     document.querySelectorAll('.admin-class-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.admin-class-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderAttendanceList(btn.dataset.class);
+            activeClass = btn.dataset.class;
+            renderAttendanceList(activeClass, activeComision);
         });
     });
 
-    function renderAdminPanel() {
-        renderAttendanceList('clase-1');
-        renderSubmissionsList();
+    // Admin commission tabs (por comisión)
+    document.querySelectorAll('.admin-com-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.admin-com-btn').forEach(b => {
+                b.style.background = 'transparent';
+                b.style.color = 'var(--text-dim)';
+                b.style.borderColor = 'var(--border)';
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            btn.style.background = 'var(--accent-dark)';
+            btn.style.color = '#fff';
+            btn.style.borderColor = 'var(--accent-dark)';
+            activeComision = btn.dataset.com;
+            renderAttendanceList(activeClass, activeComision);
+        });
+    });
+
+    // --- AUTH & INITIALIZATION ---
+    signInAnonymously(auth).catch(err => {
+        console.error("Auth Error:", err);
+        showToast("⚠️ Error de conexión con el servidor.");
+    });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("Authenticated anonymously:", user.uid);
+            initFirestoreListeners();
+        }
+    });
+
+    function initFirestoreListeners() {
+        const qAttendance = query(collection(db, 'attendance'), orderBy('timestamp', 'desc'));
+        onSnapshot(qAttendance, (snapshot) => {
+            currentAttendance = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const activeTab = document.querySelector('.admin-class-btn.active');
+            if (activeTab) renderAttendanceList(activeTab.dataset.class);
+        });
+
+        const qSubmissions = query(collection(db, 'submissions'), orderBy('timestamp', 'desc'));
+        onSnapshot(qSubmissions, (snapshot) => {
+            currentSubmissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderSubmissionsList();
+        });
     }
 
-    function renderAttendanceList(clase) {
+    function renderAttendanceList(clase, comision = 'all') {
         const list = document.getElementById('admin-attendance-list');
-        const attendance = JSON.parse(localStorage.getItem('austral-attendance') || '[]');
-        const submissions = JSON.parse(localStorage.getItem('austral-submissions') || '[]');
-        
-        const allStudents = [...(studentData['14-16'] || []), ...(studentData['16-18'] || [])];
-        const presentNames = attendance.filter(a => a.clase === clase).map(a => a.nombre);
-        
+
+        // Filtrar alumnos por comisión seleccionada
+        let allStudents;
+        if (comision === '14-16') {
+            allStudents = studentData['14-16'] || [];
+        } else if (comision === '16-18') {
+            allStudents = studentData['16-18'] || [];
+        } else {
+            allStudents = [...(studentData['14-16'] || []), ...(studentData['16-18'] || [])];
+        }
+
+        // Filtrar registros de asistencia por clase (y comisión si aplica)
+        const presentRecords = currentAttendance.filter(a => {
+            const matchClase = a.clase === clase;
+            const matchComision = comision === 'all' || a.comision === comision;
+            return matchClase && matchComision;
+        });
+        const presentNames = presentRecords.map(a => a.nombre);
+
         const present = allStudents.filter(s => presentNames.includes(s.name));
-        const absent = allStudents.filter(s => !presentNames.includes(s.name));
-        
+        const absent  = allStudents.filter(s => !presentNames.includes(s.name));
+
         list.innerHTML = `<p class="admin-counter">${present.length} presentes / ${allStudents.length} totales</p>`;
-        
+
         present.forEach(s => {
-            const record = attendance.find(a => a.clase === clase && a.nombre === s.name);
+            const record = presentRecords.find(a => a.nombre === s.name);
+            const ts = record?.timestamp?.toDate ? record.timestamp.toDate() : new Date(record?.timestamp);
             list.innerHTML += `<div class="admin-row">
                 <span class="admin-row-name">${s.name}</span>
                 <div style="display:flex;gap:0.5rem;align-items:center;">
-                    <span class="admin-row-meta">${record ? new Date(record.timestamp).toLocaleString('es-AR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                    <span class="admin-row-meta">${record?.timestamp ? ts.toLocaleString('es-AR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Sincronizando...'}</span>
                     <span class="admin-badge admin-badge--present">Presente</span>
                 </div>
             </div>`;
@@ -293,45 +426,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSubmissionsList() {
         const list = document.getElementById('admin-submissions-list');
-        const submissions = JSON.parse(localStorage.getItem('austral-submissions') || '[]');
-        
-        if (submissions.length === 0) {
+
+        if (currentSubmissions.length === 0) {
             list.innerHTML = '<p class="admin-empty">No hay entregas registradas todavía.</p>';
             return;
         }
-        list.innerHTML = `<p class="admin-counter">${submissions.length} entregas recibidas</p>`;
-        submissions.forEach(s => {
-            list.innerHTML += `<div class="admin-row">
-                <div>
-                    <span class="admin-row-name">${s.empresa}</span>
-                    <span class="admin-row-meta" style="display:block;">${s.integrantes.map(i => i.nombre).join(', ')}</span>
+
+        list.innerHTML = `<p class="admin-counter">${currentSubmissions.length} entrega${currentSubmissions.length > 1 ? 's' : ''} recibida${currentSubmissions.length > 1 ? 's' : ''}</p>`;
+
+        currentSubmissions.forEach(s => {
+            const ts = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+            const fechaStr = s.timestamp ? ts.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+
+            const linksHTML = (s.links || []).filter(l => l).map(l =>
+                `<a href="${l}" target="_blank" rel="noopener" style="display:block;color:var(--accent-dark);font-size:0.8rem;word-break:break-all;margin-bottom:0.2rem;text-decoration:underline;">${l}</a>`
+            ).join('') || '<span style="color:var(--text-dim);font-size:0.8rem;">Sin links</span>';
+
+            const integrantesHTML = (s.integrantes || []).map(i =>
+                `<span style="display:inline-block;background:rgba(88,56,163,0.12);color:var(--accent-dark);border-radius:999px;padding:0.15rem 0.6rem;font-size:0.75rem;margin:0.15rem 0.1rem;">${i.nombre}</span>`
+            ).join('');
+
+            list.innerHTML += `
+            <div style="border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
+                    <div>
+                        <span class="admin-row-name" style="font-size:1rem;">${s.empresa || 'Sin nombre'}</span>
+                        <span class="admin-row-meta" style="display:block;margin-top:0.2rem;">${s.comision || '—'} · ${fechaStr}</span>
+                    </div>
+                    <span class="admin-badge admin-badge--submitted">Entregado</span>
                 </div>
-                <span class="admin-badge admin-badge--submitted">Entregado</span>
+                <div style="margin-bottom:0.6rem;">
+                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Equipo</span>
+                    <div style="margin-top:0.3rem;">${integrantesHTML}</div>
+                </div>
+                <div style="margin-bottom:0.6rem;">
+                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Links del Proyecto</span>
+                    <div style="margin-top:0.3rem;">${linksHTML}</div>
+                </div>
+                ${s.comments ? `
+                <div style="margin-bottom:0.4rem;">
+                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Proceso & Herramientas</span>
+                    <p style="margin-top:0.3rem;font-size:0.82rem;color:var(--text-dim);line-height:1.5;">${s.comments}</p>
+                </div>` : ''}
+                ${s.adjuntos && s.adjuntos.length > 0 ? `
+                <div>
+                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Archivos Adjuntos</span>
+                    <div style="margin-top:0.3rem;">
+                        ${s.adjuntos.map(a => `
+                            <a href="${a.url}" target="_blank" rel="noopener"
+                               style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(88,56,163,0.1);color:var(--accent-dark);border-radius:6px;padding:0.25rem 0.6rem;font-size:0.78rem;text-decoration:none;margin:0.2rem 0.15rem;">
+                               📎 ${a.nombre}
+                            </a>`).join('')}
+                    </div>
+                </div>` : ''}
             </div>`;
         });
     }
 
-    // Store submissions locally too
-    const originalSubmitHandler = form.onsubmit;
-    form.addEventListener('submit', () => {
-        setTimeout(() => {
-            // After successful submission, store locally
-            const integrantes = Array.from(document.querySelectorAll('.integrante-row')).map(row => ({
-                nombre: row.querySelector('.alumno-select')?.value,
-                email: row.querySelector('.alumno-email')?.value
-            })).filter(i => i.nombre);
-            const sub = {
-                empresa: document.getElementById('empresa').value,
-                integrantes,
-                timestamp: new Date().toISOString()
-            };
-            if (sub.empresa) {
-                const subs = JSON.parse(localStorage.getItem('austral-submissions') || '[]');
-                subs.push(sub);
-                localStorage.setItem('austral-submissions', JSON.stringify(subs));
-            }
-        }, 500);
-    });
+    // (Se eliminó el backup de localStorage para favorecer Firestore)
 
     // ─── Attendance Form ───
     const attForm = document.getElementById('attendance-form');
@@ -359,38 +511,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Check if already registered
-        const existing = JSON.parse(localStorage.getItem('austral-attendance') || '[]');
-        if (existing.find(a => a.nombre === nombre && a.clase === clase)) {
-            showToast('Ya registraste asistencia para esta clase.');
-            return;
-        }
-
-        const payload = {
-            type: 'asistencia',
-            comision: attComision.value,
-            nombre: nombre,
-            clase: clase,
-            timestamp: new Date().toISOString()
-        };
-
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
-
+        // 1. Verificar si ya registró asistencia para esta clase (Query a Firestore)
+        const q = query(
+            collection(db, 'attendance'), 
+            where('nombre', '==', nombre), 
+            where('clase', '==', clase)
+        );
+        
         try {
-            await fetch(scriptURL, {
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                showToast('Ya registraste asistencia para esta clase.');
+                return;
+            }
+
+            const payload = {
+                comision: attComision.value,
+                nombre: nombre,
+                clase: clase,
+                timestamp: serverTimestamp()
+            };
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
+
+            // 2. Guardar en Firestore
+            await addDoc(collection(db, 'attendance'), payload);
+
+            // 3. Backup en Google Sheets (sin headers restrictivos para no-cors)
+            fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+                body: JSON.stringify({ ...payload, type: 'asistencia', timestamp: new Date().toISOString() })
+            }).catch(e => console.warn('Script backup failed', e));
 
-            existing.push(payload);
-            localStorage.setItem('austral-attendance', JSON.stringify(existing));
             showToast(`✅ Presente registrado: ${nombre}`);
             attForm.reset();
         } catch (err) {
-            console.error(err);
-            showToast('❌ Error al registrar. Intentá de nuevo.');
+            console.error('Firestore Error:', err);
+            showToast(`❌ Error: ${err.message || 'Intentá de nuevo'}`);
         }
     });
 });

@@ -397,11 +397,12 @@
                         </div>
                         <div class="form-group">
                             <label for="adjuntos">Adjuntos (Logo, Manual en PDF)</label>
-                            <div class="file-upload-wrapper">
+                            <div class="file-upload-wrapper" id="file-upload-wrapper">
                                 <input type="file" id="adjuntos" multiple class="file-upload-input">
-                                <div class="file-upload-button">
-                                    <span>📁 Seleccionar archivos o arrastrar aquí</span>
+                                <div class="file-upload-button" id="file-upload-button">
+                                    <span id="file-upload-label">📁 Seleccionar archivos o arrastrar aquí</span>
                                 </div>
+                                <ul id="file-list" style="margin:0.75rem 0 0;padding:0;list-style:none;display:none;"></ul>
                             </div>
                         </div>
                         <div class="form-group">
@@ -476,6 +477,11 @@
                     <button class="admin-class-btn active" data-class="clase-1">Clase 1 · 5 May</button>
                     <button class="admin-class-btn" data-class="clase-2">Clase 2 · 12 May</button>
                     <button class="admin-class-btn" data-class="clase-3">Clase 3 · 19 May</button>
+                </div>
+                <div class="admin-commission-tabs" style="display:flex;gap:0.5rem;margin:0.75rem 0 1rem;">
+                    <button class="admin-com-btn active" data-com="all" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--accent-dark);background:var(--accent-dark);color:#fff;font-size:0.8rem;cursor:pointer;">Todas</button>
+                    <button class="admin-com-btn" data-com="14-16" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">14:00 – 16:00</button>
+                    <button class="admin-com-btn" data-com="16-18" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">16:00 – 18:00</button>
                 </div>
                 <div id="admin-attendance-list" class="admin-list"></div>
             </div>
