@@ -896,6 +896,24 @@ input:focus, select:focus, textarea:focus {
   color: var(--yellow);
 }
 
+.meet-link {
+  display: block;
+  padding: 0.6rem 1rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.75rem;
+  color: white;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: 0.2s;
+}
+.meet-link:hover {
+  background: var(--yellow);
+  color: var(--dark);
+  border-color: var(--yellow);
+}
+
 .deadlines-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
