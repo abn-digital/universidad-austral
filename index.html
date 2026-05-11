@@ -118,6 +118,63 @@
         </div>
     </section>
 
+    <!-- LIVE DATA / APIs -->
+    <section class="container">
+        <span class="eyebrow reveal">Bonus: Live Data</span>
+        <h2 class="section-header reveal">Conectá tu web a <span>datos reales.</span></h2>
+
+        <div class="callout reveal" style="margin-bottom: 3rem;">
+            <p><strong>Requisito extra:</strong> Tu landing page tiene que tener una sección o tab que muestre datos en vivo desde una API pública. No hace falta que sea compleja — un card con el precio del dólar actualizado ya cuenta. Lo importante es que los datos vengan de una API real, no estén hardcodeados.</p>
+        </div>
+
+        <div class="pillars-grid">
+            <div class="hike-card reveal reveal-delay-1">
+                <span class="eyebrow card-eyebrow">💵 Finanzas</span>
+                <h3 class="card-title">DolarAPI</h3>
+                <p class="card-text">Cotización del dólar en Argentina: blue, oficial, MEP, CCL, cripto. Ideal si tu empresa es fintech, ecommerce o cualquier cosa con precios.</p>
+                <div class="deliverable-tags">
+                    <span class="dtag">Sin API Key</span>
+                    <span class="dtag">JSON</span>
+                </div>
+                <pre class="api-snippet">fetch('https://dolarapi.com/v1/dolares')</pre>
+            </div>
+            <div class="hike-card reveal reveal-delay-2">
+                <span class="eyebrow card-eyebrow">🌤️ Clima</span>
+                <h3 class="card-title">Open-Meteo</h3>
+                <p class="card-text">Clima actual y pronóstico de cualquier ciudad del mundo. Ideal para turismo, logística, agro o sustentabilidad.</p>
+                <div class="deliverable-tags">
+                    <span class="dtag">Sin API Key</span>
+                    <span class="dtag">Geolocalización</span>
+                </div>
+                <pre class="api-snippet">fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.6&amp;longitude=-58.4&amp;current_weather=true')</pre>
+            </div>
+            <div class="hike-card reveal reveal-delay-3">
+                <span class="eyebrow card-eyebrow">🌍 Datos Globales</span>
+                <h3 class="card-title">REST Countries</h3>
+                <p class="card-text">Info de todos los países: población, bandera, moneda, idioma. Perfecto para dashboards comparativos o empresas de expansión internacional.</p>
+                <div class="deliverable-tags">
+                    <span class="dtag">Sin API Key</span>
+                    <span class="dtag">250+ países</span>
+                </div>
+                <pre class="api-snippet">fetch('https://restcountries.com/v3.1/name/argentina')</pre>
+            </div>
+            <div class="hike-card reveal reveal-delay-4">
+                <span class="eyebrow card-eyebrow">₿ Cripto</span>
+                <h3 class="card-title">CoinGecko</h3>
+                <p class="card-text">Precio de Bitcoin, Ethereum y +10.000 criptos en USD y ARS. Útil para fintech, inversiones o cualquier web3.</p>
+                <div class="deliverable-tags">
+                    <span class="dtag">Sin API Key</span>
+                    <span class="dtag">Precio en ARS</span>
+                </div>
+                <pre class="api-snippet">fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&amp;vs_currencies=usd,ars')</pre>
+            </div>
+        </div>
+
+        <div class="callout reveal" style="margin-top: 3rem; background: #F0FDF4; border-color: #166534;">
+            <p>💡 <strong>¿Encontraste otra API que encaja mejor con tu empresa?</strong> Usala. Cualquier API pública y gratuita es válida. Lo que evaluamos es que los datos se carguen en tiempo real desde el código, no que usen una de estas cuatro.</p>
+        </div>
+    </section>
+
     <!-- TOOLBOX -->
     <section id="toolbox" class="dark-section">
         <div class="container">
@@ -268,7 +325,7 @@
                     <span class="cal-date">MAR 19 MAY</span>
                     <h3>Clase 3</h3>
                     <p>Pre-presentación y edición final. Revisión grupal de avances. Ajustes de storytelling, integración del video en la web y ensayo del pitch.</p>
-                    <span class="cal-tag">Presencial · Aula B3</span>
+                    <span class="cal-tag cal-tag--optional">Online</span>
                 </div>
             </div>
 

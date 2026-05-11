@@ -195,6 +195,19 @@ h3 { font-weight: 600; }
   text-decoration: underline;
 }
 
+.api-snippet {
+  margin-top: 1.5rem;
+  padding: 0.8rem 1rem;
+  background: #F4F3F2;
+  border-radius: 0.75rem;
+  font-size: 0.7rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--accent-dark);
+  overflow-x: auto;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+}
+
 /* ─── Dark Section (Toolbox) ─── */
 .dark-section {
   background: var(--dark);
