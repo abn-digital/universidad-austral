@@ -7,6 +7,8 @@ import {
     orderBy, 
     where, 
     getDocs,
+    updateDoc,
+    doc,
     serverTimestamp 
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -85,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let integranteCount = 0;
     let currentAttendance = [];
     let currentSubmissions = [];
+    let editingSubmissionId = null; // Track if we are updating an existing entry
 
     // ─── Scroll Reveal Animations ───
     const revealElements = document.querySelectorAll('.reveal');
@@ -265,15 +268,17 @@ document.addEventListener('DOMContentLoaded', () => {
         createIntegranteSelector();
     });
 
-    // ─── Add Links ───
-    addLinkBtn.addEventListener('click', () => {
+    function addLinkInput(value = '') {
         const input = document.createElement('input');
         input.type = 'url';
         input.name = 'project-link';
         input.placeholder = 'https://...';
         input.style.marginBottom = '1rem';
+        input.value = value;
         linksContainer.appendChild(input);
-    });
+    }
+
+    addLinkBtn.addEventListener('click', () => addLinkInput());
 
     // ─── Form Submission ───
     form.addEventListener('submit', async (e) => {
@@ -297,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             integrantes: integrantes,
             links: links,
             comments: document.getElementById('comentarios').value,
+            editCode: document.getElementById('edit-code').value, // El código secreto
             timestamp: serverTimestamp()
         };
 
@@ -320,10 +326,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Guardar en Firestore con URLs de archivos
             btn.innerHTML = 'Guardando entrega...';
-            await addDoc(collection(db, 'submissions'), {
-                ...payload,
-                adjuntos: adjuntosURLs
-            });
+            if (editingSubmissionId) {
+                // Actualizar existente
+                await updateDoc(doc(db, 'submissions', editingSubmissionId), {
+                    ...payload,
+                    adjuntos: adjuntosURLs.length > 0 ? adjuntosURLs : (payload.adjuntos || []) // Mantener viejos si no subió nuevos
+                });
+                showToast(`Entrega actualizada correctamente.`);
+            } else {
+                // Nueva entrega
+                await addDoc(collection(db, 'submissions'), {
+                    ...payload,
+                    adjuntos: adjuntosURLs
+                });
+                showToast(`Entrega recibida. ¡Éxitos en el taller!`);
+            }
 
             // 3. Backup en Google Sheets
             fetch(scriptURL, {
@@ -332,8 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ ...payload, type: 'proyecto', timestamp: new Date().toISOString() })
             }).catch(e => console.warn('Script backup failed', e));
 
-            showToast(`Entrega recibida. ¡Éxitos en el taller!`);
             form.reset();
+            editingSubmissionId = null;
+            document.getElementById('submit-delivery-btn').innerHTML = 'Enviar Entrega Grupal ↗';
             integrantesContainer.innerHTML = '';
             integranteCount = 0;
             createIntegranteSelector();
@@ -344,6 +362,72 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
+        }
+    });
+
+    // ─── Search & Edit Submission ───
+    const searchBtn = document.getElementById('search-delivery-btn');
+    searchBtn.addEventListener('click', async () => {
+        const empresa = prompt('Nombre de la Empresa:');
+        if (!empresa) return;
+        const code = prompt('Código de Seguridad (el que pusiste al entregar):');
+        if (!code) return;
+
+        try {
+            const q = query(
+                collection(db, 'submissions'),
+                where('empresa', '==', empresa),
+                where('editCode', '==', code)
+            );
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                showToast('No se encontró ninguna entrega con esos datos o el código es incorrecto.');
+                return;
+            }
+
+            const docSnap = querySnapshot.docs[0];
+            const data = docSnap.data();
+            editingSubmissionId = docSnap.id;
+
+            // Cargar datos en el formulario
+            comisionSelect.value = data.comision;
+            document.getElementById('empresa').value = data.empresa;
+            document.getElementById('comentarios').value = data.comments || '';
+            if (document.getElementById('edit-code')) {
+                document.getElementById('edit-code').value = data.editCode || '';
+            }
+
+            // Cargar integrantes
+            integrantesContainer.innerHTML = '';
+            integranteCount = 0;
+            if (data.integrantes && data.integrantes.length > 0) {
+                data.integrantes.forEach(int => {
+                    createIntegranteSelector();
+                    const rows = integrantesContainer.querySelectorAll('.integrante-row');
+                    const lastRow = rows[rows.length - 1];
+                    lastRow.querySelector('.alumno-select').value = int.nombre;
+                    lastRow.querySelector('.alumno-email').value = int.email;
+                });
+            } else {
+                createIntegranteSelector();
+            }
+
+            // Cargar links
+            linksContainer.innerHTML = '';
+            if (data.links && data.links.length > 0) {
+                data.links.forEach(link => addLinkInput(link));
+            } else {
+                addLinkInput();
+            }
+
+            document.getElementById('submit-delivery-btn').innerHTML = 'Actualizar Entrega ↗';
+            window.scrollTo({ top: document.getElementById('deliver').offsetTop - 100, behavior: 'smooth' });
+            showToast('¡Entrega cargada! Ahora podés editarla y volver a enviar.');
+
+        } catch (err) {
+            console.error('Error searching submission:', err);
+            showToast('Error al buscar la entrega.');
         }
     });
 
@@ -531,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
                     <div>
                         <span class="admin-row-name" style="font-size:1rem;">${s.empresa || 'Sin nombre'}</span>
-                        <span class="admin-row-meta" style="display:block;margin-top:0.2rem;">${s.comision || '—'} · ${fechaStr}</span>
+                        <span class="admin-row-meta" style="display:block;margin-top:0.2rem;">${s.comision || '—'} · ${fechaStr} ${s.editCode ? `· 🔑 ${s.editCode}` : ''}</span>
                     </div>
                     <span class="admin-badge admin-badge--submitted">Entregado</span>
                 </div>
