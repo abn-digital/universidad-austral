@@ -302,7 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
             integrantes: integrantes,
             links: links,
             comments: document.getElementById('comentarios').value,
-            editCode: document.getElementById('edit-code').value, // El código secreto
+            editCode: document.getElementById('edit-code').value, // El código original (con mayúsculas/minúsculas)
+            searchCode: document.getElementById('edit-code').value.toLowerCase().trim(), // El código normalizado para búsqueda
             timestamp: serverTimestamp()
         };
 
@@ -352,6 +353,8 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
             editingSubmissionId = null;
             document.getElementById('submit-delivery-btn').innerHTML = 'Enviar Entrega Grupal ↗';
+            document.getElementById('edit-files-info').style.display = 'none';
+            document.getElementById('edit-files-list').innerHTML = '';
             integrantesContainer.innerHTML = '';
             integranteCount = 0;
             createIntegranteSelector();
@@ -365,24 +368,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ─── Search & Edit Submission ───
+    // ─── Search & Edit Submission Modal ───
     const searchBtn = document.getElementById('search-delivery-btn');
-    searchBtn.addEventListener('click', async () => {
-        const empresa = prompt('Nombre de la Empresa:');
-        if (!empresa) return;
-        const code = prompt('Código de Seguridad (el que pusiste al entregar):');
-        if (!code) return;
+    const editModal = document.getElementById('edit-modal');
+    const closeEditModal = document.getElementById('close-edit-modal');
+    const confirmEditBtn = document.getElementById('confirm-edit-btn');
+    const inputEditCode = document.getElementById('input-edit-code');
+
+    searchBtn.addEventListener('click', () => {
+        editModal.style.display = 'flex';
+        requestAnimationFrame(() => editModal.classList.add('open'));
+        inputEditCode.value = '';
+        inputEditCode.focus();
+    });
+
+    function closeEdit() {
+        editModal.classList.remove('open');
+        setTimeout(() => { editModal.style.display = 'none'; }, 280);
+    }
+
+    closeEditModal.addEventListener('click', closeEdit);
+
+    confirmEditBtn.addEventListener('click', async () => {
+        const rawCode = inputEditCode.value.trim();
+        if (!rawCode) return;
+        const searchCode = rawCode.toLowerCase();
+
+        confirmEditBtn.innerHTML = 'Buscando...';
+        confirmEditBtn.disabled = true;
 
         try {
-            const q = query(
+            let q = query(
                 collection(db, 'submissions'),
-                where('empresa', '==', empresa),
-                where('editCode', '==', code)
+                where('searchCode', '==', searchCode)
             );
-            const querySnapshot = await getDocs(q);
+            let querySnapshot = await getDocs(q);
+
+            // Fallback para entregas viejas que no tienen searchCode
+            if (querySnapshot.empty) {
+                q = query(
+                    collection(db, 'submissions'),
+                    where('editCode', '==', rawCode)
+                );
+                querySnapshot = await getDocs(q);
+            }
 
             if (querySnapshot.empty) {
-                showToast('No se encontró ninguna entrega con esos datos o el código es incorrecto.');
+                showToast('No se encontró ninguna entrega con ese código.');
+                confirmEditBtn.innerHTML = 'Buscar mi Entrega ↗';
+                confirmEditBtn.disabled = false;
                 return;
             }
 
@@ -391,11 +425,11 @@ document.addEventListener('DOMContentLoaded', () => {
             editingSubmissionId = docSnap.id;
 
             // Cargar datos en el formulario
-            comisionSelect.value = data.comision;
-            document.getElementById('empresa').value = data.empresa;
+            comisionSelect.value = data.comision || '14-16';
+            document.getElementById('empresa').value = data.empresa || '';
             document.getElementById('comentarios').value = data.comments || '';
             if (document.getElementById('edit-code')) {
-                document.getElementById('edit-code').value = data.editCode || '';
+                document.getElementById('edit-code').value = data.editCode || data.searchCode || '';
             }
 
             // Cargar integrantes
@@ -421,13 +455,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 addLinkInput();
             }
 
+            // Mostrar archivos ya subidos
+            const filesInfo = document.getElementById('edit-files-info');
+            const filesList = document.getElementById('edit-files-list');
+            if (data.adjuntos && data.adjuntos.length > 0) {
+                filesInfo.style.display = 'block';
+                filesList.innerHTML = data.adjuntos.map(a => 
+                    `<li style="margin-bottom: 0.3rem;">• <a href="${a.url}" target="_blank" style="color:var(--accent-dark);text-decoration:underline;">${a.nombre}</a></li>`
+                ).join('');
+            } else {
+                filesInfo.style.display = 'none';
+            }
+
             document.getElementById('submit-delivery-btn').innerHTML = 'Actualizar Entrega ↗';
+            closeEdit();
             window.scrollTo({ top: document.getElementById('deliver').offsetTop - 100, behavior: 'smooth' });
-            showToast('¡Entrega cargada! Ahora podés editarla y volver a enviar.');
+            showToast('¡Entrega cargada! Ahora podés editarla.');
 
         } catch (err) {
             console.error('Error searching submission:', err);
             showToast('Error al buscar la entrega.');
+        } finally {
+            confirmEditBtn.innerHTML = 'Buscar mi Entrega ↗';
+            confirmEditBtn.disabled = false;
         }
     });
 
