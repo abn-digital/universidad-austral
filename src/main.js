@@ -99,6 +99,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealElements.forEach(el => revealObserver.observe(el));
 
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // ─── Dark Mode Toggle ───
+    const darkToggle = document.getElementById('dark-toggle');
+    const darkMoonIcon = document.querySelector('.icon-toggle-moon');
+    const darkSunIcon = document.querySelector('.icon-toggle-sun');
+    const darkLabel = document.querySelector('.dark-toggle-label');
+    const isDark = localStorage.getItem('dark') === '1';
+    if (isDark) {
+        document.body.classList.add('dark');
+        if (darkMoonIcon) darkMoonIcon.style.display = 'none';
+        if (darkSunIcon)  darkSunIcon.style.display  = '';
+        if (darkLabel) darkLabel.textContent = 'Light';
+    }
+    darkToggle.addEventListener('click', () => {
+        const on = document.body.classList.toggle('dark');
+        if (darkMoonIcon) darkMoonIcon.style.display = on ? 'none' : '';
+        if (darkSunIcon)  darkSunIcon.style.display  = on ? '' : 'none';
+        if (darkLabel) darkLabel.textContent = on ? 'Light' : 'Dark';
+        localStorage.setItem('dark', on ? '1' : '0');
+    });
+
+    // ─── Countdown ───
+    const DEADLINE = new Date('2026-05-26T14:00:00-03:00');
+    function updateCountdown() {
+        const now = new Date();
+        const diff = DEADLINE - now;
+        if (diff <= 0) {
+            document.getElementById('cd-days').textContent = '0';
+            document.getElementById('cd-hours').textContent = '00';
+            document.getElementById('cd-mins').textContent = '00';
+            document.getElementById('cd-secs').textContent = '00';
+            return;
+        }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('cd-days').textContent = d;
+        document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+        document.getElementById('cd-mins').textContent = String(m).padStart(2, '0');
+        document.getElementById('cd-secs').textContent = String(s).padStart(2, '0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // ─── FAQ Accordion ───
+    document.querySelectorAll('.faq-q').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = btn.closest('.faq-item');
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        });
+    });
+
+
     // ─── File Upload Preview ───
     const adjuntosInput = document.getElementById('adjuntos');
     const fileList = document.getElementById('file-list');
@@ -108,10 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFileList(files) {
         if (!files || files.length === 0) {
             fileList.style.display = 'none';
-            fileUploadLabel.textContent = '📁 Seleccionar archivos o arrastrar aquí';
+            fileUploadLabel.textContent = 'Seleccionar archivos o arrastrar aquí';
             return;
         }
-        fileUploadLabel.textContent = `✅ ${files.length} archivo${files.length > 1 ? 's' : ''} seleccionado${files.length > 1 ? 's' : ''}`;
+        fileUploadLabel.textContent = `${files.length} archivo${files.length > 1 ? 's' : ''} seleccionado${files.length > 1 ? 's' : ''}`;
         fileList.style.display = 'block';
         fileList.innerHTML = '';
         Array.from(files).forEach(file => {
@@ -274,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ ...payload, type: 'proyecto', timestamp: new Date().toISOString() })
             }).catch(e => console.warn('Script backup failed', e));
 
-            showToast(`✅ ¡Entrega recibida! Éxitos en el taller.`);
+            showToast(`Entrega recibida. ¡Éxitos en el taller!`);
             form.reset();
             integrantesContainer.innerHTML = '';
             integranteCount = 0;
@@ -282,32 +340,54 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFileList(null); // limpiar preview de archivos
         } catch (err) {
             console.error('Firebase Error:', err);
-            showToast(`❌ Error: ${err.message || 'Intentá de nuevo'}`);
+            showToast(`Error: ${err.message || 'Intentá de nuevo'}`);
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
     });
 
-    // ─── Admin Access ───
+    // ─── Admin Access (with animated modal) ───
     const adminModal = document.getElementById('admin-modal');
     const adminClose = document.getElementById('admin-close');
-    
+
+    function openModal() {
+        adminModal.style.display = 'flex';
+        requestAnimationFrame(() => adminModal.classList.add('open'));
+        renderAdminPanel();
+    }
+    function closeModal() {
+        adminModal.classList.remove('open');
+        setTimeout(() => { adminModal.style.display = 'none'; }, 280);
+    }
+
     adminTrigger.addEventListener('click', () => {
         const pass = prompt('Contraseña de administrador:');
-        if (pass === 'hike2026') {
-            adminModal.style.display = 'flex';
-            renderAdminPanel();
-        }
+        if (pass === 'hike2026') openModal();
     });
-    
-    adminClose.addEventListener('click', () => {
-        adminModal.style.display = 'none';
+    adminClose.addEventListener('click', closeModal);
+    adminModal.addEventListener('click', e => { if (e.target === adminModal) closeModal(); });
+
+    // Export CSV
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+        const clase = document.querySelector('.admin-class-btn.active')?.dataset.class || 'clase-1';
+        const allStudents = [...(studentData['14-16'] || []), ...(studentData['16-18'] || [])];
+        const records = currentAttendance.filter(a => a.clase === clase);
+        const rows = [['Nombre', 'Comisión', 'Estado', 'Timestamp']];
+        allStudents.forEach(s => {
+            const rec = records.find(a => a.nombre === s.name);
+            const com = rec?.comision || (studentData['14-16'].find(x => x.name === s.name) ? '14-16' : '16-18');
+            const ts = rec?.timestamp?.toDate ? rec.timestamp.toDate().toLocaleString('es-AR') : rec?.timestamp ? new Date(rec.timestamp).toLocaleString('es-AR') : '';
+            rows.push([s.name, com, rec ? 'Presente' : 'Ausente', ts]);
+        });
+        const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `asistencia_${clase}.csv`; a.click();
+        URL.revokeObjectURL(url);
     });
-    
-    adminModal.addEventListener('click', (e) => {
-        if (e.target === adminModal) adminModal.style.display = 'none';
-    });
+
 
     // Modal tabs
     document.querySelectorAll('.modal-tab').forEach(tab => {
@@ -354,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- AUTH & INITIALIZATION ---
     signInAnonymously(auth).catch(err => {
         console.error("Auth Error:", err);
-        showToast("⚠️ Error de conexión con el servidor.");
+        showToast("Error de conexión con el servidor.");
     });
 
     onAuthStateChanged(auth, (user) => {
@@ -475,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${s.adjuntos.map(a => `
                             <a href="${a.url}" target="_blank" rel="noopener"
                                style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(88,56,163,0.1);color:var(--accent-dark);border-radius:6px;padding:0.25rem 0.6rem;font-size:0.78rem;text-decoration:none;margin:0.2rem 0.15rem;">
-                               📎 ${a.nombre}
+                               <i data-lucide="paperclip" style="width:14px;height:14px;"></i> ${a.nombre}
                             </a>`).join('')}
                     </div>
                 </div>` : ''}
@@ -500,30 +580,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Personal mini-dashboard: update when student name changes
+    attAlumno.addEventListener('change', () => updatePersonalDashboard());
+
+    function updatePersonalDashboard() {
+        const nombre = attAlumno.value;
+        if (!nombre) return;
+        const dash = document.getElementById('personal-dashboard');
+        const greeting = document.getElementById('dashboard-greeting');
+        const dsAtt = document.getElementById('ds-att');
+        const dsSub = document.getElementById('ds-sub');
+        const dsTime = document.getElementById('ds-time');
+
+        const firstName = nombre.split(' ')[0];
+        greeting.textContent = `Hola, ${firstName}`;
+
+        // Asistencia: check all 3 classes
+        const attClases = ['clase-1', 'clase-2', 'clase-3'].filter(c =>
+            currentAttendance.some(a => a.nombre === nombre && a.clase === c)
+        );
+        dsAtt.className = 'dashboard-status-value ' + (attClases.length > 0 ? 'ds-ok' : 'ds-no');
+        dsAtt.textContent = attClases.length > 0 ? `${attClases.length}/3 clases` : 'Sin registros';
+
+        // Entrega
+        const hasSub = currentSubmissions.some(s =>
+            (s.integrantes || []).some(i => i.nombre === nombre)
+        );
+        dsSub.className = 'dashboard-status-value ' + (hasSub ? 'ds-ok' : 'ds-dim');
+        dsSub.textContent = hasSub ? 'Entregado' : 'Pendiente';
+
+        // Tiempo restante
+        const diff = DEADLINE - new Date();
+        if (diff > 0) {
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            dsTime.className = 'dashboard-status-value ' + (d < 3 ? 'ds-no' : 'ds-dim');
+            dsTime.textContent = `${d}d ${h}h restantes`;
+        } else {
+            dsTime.className = 'dashboard-status-value ds-no';
+            dsTime.textContent = 'Plazo vencido';
+        }
+    }
+
     attForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nombre = attAlumno.value;
         const clase = document.getElementById('att-clase').value;
         const declared = document.getElementById('att-declaration').checked;
+        const submitBtn = document.getElementById('att-submit-btn');
 
         if (!nombre || !clase || !declared) {
-            showToast('⚠️ Completá todos los campos y la declaración.');
+            showToast('Completá todos los campos y la declaración.');
             return;
         }
 
-        // 1. Verificar si ya registró asistencia para esta clase (Query a Firestore)
+        // 1. Verificar si ya registró asistencia para esta clase
         const q = query(
-            collection(db, 'attendance'), 
-            where('nombre', '==', nombre), 
+            collection(db, 'attendance'),
+            where('nombre', '==', nombre),
             where('clase', '==', clase)
         );
-        
+
         try {
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
                 showToast('Ya registraste asistencia para esta clase.');
+                submitBtn.textContent = 'Presente registrado';
+                submitBtn.disabled = true;
+                submitBtn.style.background = '#16a34a';
                 return;
             }
+
+            submitBtn.textContent = 'Registrando...';
+            submitBtn.disabled = true;
 
             const payload = {
                 comision: attComision.value,
@@ -537,18 +666,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. Guardar en Firestore
             await addDoc(collection(db, 'attendance'), payload);
 
-            // 3. Backup en Google Sheets (sin headers restrictivos para no-cors)
+            // 3. Backup en Google Sheets
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ ...payload, type: 'asistencia', timestamp: new Date().toISOString() })
             }).catch(e => console.warn('Script backup failed', e));
 
-            showToast(`✅ Presente registrado: ${nombre}`);
-            attForm.reset();
+            submitBtn.textContent = 'Presente registrado';
+            submitBtn.style.background = '#16a34a';
+            showToast(`Presente registrado: ${nombre}`);
+            updatePersonalDashboard();
         } catch (err) {
             console.error('Firestore Error:', err);
-            showToast(`❌ Error: ${err.message || 'Intentá de nuevo'}`);
+            showToast(`Error: ${err.message || 'Intentá de nuevo'}`);
+            submitBtn.textContent = 'Registrar asistencia';
+            submitBtn.disabled = false;
+            submitBtn.style.background = '';
         }
     });
 });

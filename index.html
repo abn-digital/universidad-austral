@@ -12,24 +12,42 @@
     <title>Taller de IA — Universidad Austral</title>
     <link rel="icon" href="https://universidadaustral.hiringroom.com/data/accounts/universidadaustral/microsite/ccaa99c6d26434124e55a55b75bb20ee.png">
     <link rel="stylesheet" href="./src/index.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
     <header class="hero">
         <div class="hero-aura"></div>
+
+        <!-- Fixed top-left logos -->
+        <div class="nav-logo-fixed">
+            <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Universidad Austral">
+            <div class="nav-divider"></div>
+            <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike">
+        </div>
+
         <nav class="container nav">
-            <div class="nav-brand">
-                <img src="https://www.austral.edu.ar/wp-content/uploads/2022/09/logo-horizontal-UA.png?x84522&x84522" alt="Universidad Austral">
-                <div class="nav-divider"></div>
-                <img src="https://storage.googleapis.com/abn-assets/hike_logo_violeta_1080x1080.png" alt="Hike">
-            </div>
             <div class="nav-links">
                 <a href="#consigna" class="eyebrow">Consigna</a>
                 <a href="#toolbox" class="eyebrow">Herramientas</a>
                 <a href="#prompting" class="eyebrow">Prompting</a>
                 <a href="#inspiration" class="eyebrow">Inspiración</a>
                 <a href="#deliver" class="eyebrow">Entregar</a>
-                <a href="#asistencia" class="eyebrow">Asistencia</a>
+                <a href="#faq" class="eyebrow">FAQ</a>
+                <a href="#asistencia" class="nav-att-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    Asistencia
+                </a>
+                <button id="whatsapp-btn" class="wa-btn" title="Grupo de WhatsApp">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    WhatsApp
+                </button>
+                <button id="dark-toggle" class="dark-toggle" title="Modo oscuro">
+                    <i data-lucide="moon" class="icon-toggle-moon" style="width:15px;height:15px;"></i>
+                    <i data-lucide="sun" class="icon-toggle-sun" style="width:15px;height:15px;display:none;"></i>
+                    <span class="dark-toggle-label">Dark</span>
+                </button>
             </div>
         </nav>
 
@@ -37,11 +55,37 @@
             <span class="eyebrow">Taller de IA — Ingeniería Q1 2026</span>
             <h1 class="reveal">Creá una marca real<br><span>con herramientas de IA.</span></h1>
             <p class="hero-subtitle reveal">
-                El objetivo de este taller es simple: van a tomar una idea de negocio y la van a hacer tangible usando IA como herramienta de producción. Al final del cuatrimestre tienen que tener algo que se pueda mostrar, no solo un slide. <strong>Todas las herramientas tienen plan gratuito — no es necesario pagar nada.</strong>
+                El objetivo de este taller es que <strong>trabajen en clase</strong> — la idea es que casi todo quede resuelto durante las 3 jornadas, con la menor tarea posible para el hogar. Van a tomar una idea de negocio y la van a hacer tangible usando IA como herramienta de producción. Al final tienen que tener algo que se pueda mostrar, no solo un slide. <strong>Todas las herramientas tienen plan gratuito — no es necesario pagar nada.</strong>
             </p>
             <div class="hero-cta reveal">
                 <a href="#consigna" class="btn-primary">Ver la consigna completa ↓</a>
                 <a href="#deliver" class="btn-secondary">Hacer mi entrega ↗</a>
+            </div>
+            <!-- Countdown -->
+            <div class="countdown-bar reveal">
+                <span class="countdown-label">Entrega final en</span>
+                <div class="countdown-units">
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="cd-days">--</span>
+                        <span class="countdown-sub">días</span>
+                    </div>
+                    <span class="countdown-sep">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="cd-hours">--</span>
+                        <span class="countdown-sub">horas</span>
+                    </div>
+                    <span class="countdown-sep">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="cd-mins">--</span>
+                        <span class="countdown-sub">min</span>
+                    </div>
+                    <span class="countdown-sep">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="cd-secs">--</span>
+                        <span class="countdown-sub">seg</span>
+                    </div>
+                </div>
+                <span class="countdown-label" style="margin-left:auto;">26 Mayo · 14:00 hs</span>
             </div>
         </div>
     </header>
@@ -126,16 +170,35 @@
                 <h2 class="dark-heading reveal">Qué herramientas usar <span>y para qué.</span></h2>
             </div>
             
+            <div class="toolbox-featured reveal">
+                <div class="toolbox-featured-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Más recomendada
+                </div>
+                <div class="toolbox-featured-body">
+                    <div>
+                        <h3 class="toolbox-featured-title">Google AI Studio</h3>
+                        <p class="toolbox-featured-desc">El mejor punto de entrada para experimentar con IA de forma gratuita. Acceso directo a Gemini 2.5 Pro — el modelo más potente disponible hoy — sin límites de uso en su tier gratuito. Ideal para generar textos, analizar documentos, escribir código y hacer brainstorming.</p>
+                        <div class="tool-tags" style="margin-top:1.25rem;">
+                            <a href="https://aistudio.google.com" target="_blank" class="tool-tag tool-tag--highlight">Abrir AI Studio →</a>
+                            <span class="tool-tag" style="opacity:0.6;cursor:default;">Gemini 2.5 Pro</span>
+                            <span class="tool-tag" style="opacity:0.6;cursor:default;">Gratis</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="tool-tip" style="margin-top:1.25rem;"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> Accedé con tu cuenta de Google. Usalo para <strong>todo lo que sea texto</strong>: brief de marca, guión del video, copy de la web, análisis de competencia.</p>
+            </div>
+
             <div class="toolbox-grid">
                 <div class="reveal reveal-delay-1">
                     <h3 class="tool-category-title">Estrategia y Copy</h3>
                     <p class="tool-category-desc">Para definir el negocio, escribir el pitch, los textos de la web y el guión del video.</p>
                     <div class="tool-tags">
+                        <a href="https://aistudio.google.com" target="_blank" class="tool-tag tool-tag--highlight">AI Studio</a>
                         <a href="https://chatgpt.com" target="_blank" class="tool-tag">ChatGPT</a>
-                        <a href="https://gemini.google.com" target="_blank" class="tool-tag">Gemini</a>
                         <a href="https://claude.ai" target="_blank" class="tool-tag">Claude</a>
                     </div>
-                    <p class="tool-tip">💡 Usá Claude para textos largos y coherentes. ChatGPT para brainstorming rápido.</p>
+                    <p class="tool-tip"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> Usá AI Studio para textos largos y coherentes. ChatGPT para brainstorming rápido.</p>
                 </div>
 
                 <div class="reveal reveal-delay-2">
@@ -146,7 +209,7 @@
                         <a href="https://midjourney.com" target="_blank" class="tool-tag">Midjourney</a>
                         <a href="https://ideogram.ai" target="_blank" class="tool-tag">Ideogram</a>
                     </div>
-                    <p class="tool-tip">💡 NanoBanana es el más fácil para empezar. Ideogram es muy bueno para logos con texto.</p>
+                    <p class="tool-tip"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> NanoBanana es el más fácil para empezar. Ideogram es muy bueno para logos con texto.</p>
                 </div>
 
                 <div class="reveal reveal-delay-3">
@@ -157,7 +220,7 @@
                         <a href="https://lumalabs.ai" target="_blank" class="tool-tag">Luma Dream Machine</a>
                         <a href="https://runwayml.com" target="_blank" class="tool-tag">Runway Gen-3</a>
                     </div>
-                    <p class="tool-tip">💡 <strong>Hailuo</strong>: 200 créditos gratis. <strong>Luma</strong>: 30 generaciones gratis. <strong>Runway</strong>: 125 créditos (~5 clips). No paguen nada — con lo gratis alcanza.</p>
+                    <p class="tool-tip"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> <strong>Hailuo</strong>: 200 créditos gratis. <strong>Luma</strong>: 30 generaciones gratis. <strong>Runway</strong>: 125 créditos (~5 clips). No paguen nada — con lo gratis alcanza.</p>
                     <p class="tool-tip" style="margin-top:0.5rem">✂️ <strong>CapCut</strong> (gratis, en el browser): unan los clips, agreguen el jingle de Suno encima y exportan. <a href="https://www.capcut.com" target="_blank" style="color:rgba(255,255,255,0.6); text-decoration:underline;">capcut.com →</a></p>
                 </div>
 
@@ -168,7 +231,7 @@
                         <a href="https://suno.com" target="_blank" class="tool-tag">Suno AI</a>
                         <a href="https://udio.com" target="_blank" class="tool-tag">Udio</a>
                     </div>
-                    <p class="tool-tip">💡 <strong>Suno gratis</strong>: 50 canciones/día. Más que suficiente. Escriban estilo + letra: <em>"upbeat latin pop, female vocals, 30s jingle for a sustainable water brand called Aqua Sense"</em>.</p>
+                    <p class="tool-tip"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> <strong>Suno gratis</strong>: 50 canciones/día. Más que suficiente. Escriban estilo + letra: <em>"upbeat latin pop, female vocals, 30s jingle for a sustainable water brand called Aqua Sense"</em>.</p>
                 </div>
 
                 <div class="reveal reveal-delay-2">
@@ -179,7 +242,7 @@
                         <a href="https://lovable.dev" target="_blank" class="tool-tag">Lovable</a>
                         <a href="https://bolt.new" target="_blank" class="tool-tag">Bolt.new</a>
                     </div>
-                    <p class="tool-tip">💡 <strong>v0</strong>: 200 mensajes gratis/mes. <strong>Lovable</strong>: 5 proyectos gratis. Los tres publican con URL propia sin pagar. Describí la web completa en el primer prompt — después es más difícil cambiar la estructura.</p>
+                    <p class="tool-tip"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> <strong>v0</strong>: 200 mensajes gratis/mes. <strong>Lovable</strong>: 5 proyectos gratis. Los tres publican con URL propia sin pagar. Describí la web completa en el primer prompt — después es más difícil cambiar la estructura.</p>
                 </div>
 
                 <div class="reveal reveal-delay-3">
@@ -189,7 +252,7 @@
                         <a href="https://lookerstudio.google.com" target="_blank" class="tool-tag">Looker Studio</a>
                         <a href="https://sheets.google.com" target="_blank" class="tool-tag">Google Sheets</a>
                     </div>
-                    <p class="tool-tip">💡 Pedile a ChatGPT que invente 12 meses de datos simulados para tu empresa y pegalo en un Sheet.</p>
+                    <p class="tool-tip"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:-2px;opacity:0.7;"></i> Pedile a ChatGPT que invente 12 meses de datos simulados para tu empresa y pegalo en un Sheet.</p>
                 </div>
             </div>
         </div>
@@ -209,8 +272,8 @@
                     <h4>Asigná un Rol</h4>
                     <p>Antes de pedir algo, decile a la IA quién tiene que ser.</p>
                     <div class="prompt-example">
-                        <span class="prompt-bad">❌ "Escribí un eslogan para mi marca de agua"</span>
-                        <span class="prompt-good">✅ "Sos un director creativo de una agencia de publicidad premium. Escribí 5 slogans para una marca de agua mineral enfocada en deportistas urbanos. Estilo: directo, minimalista, en inglés."</span>
+                        <span class="prompt-bad"><i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Escribí un eslogan para mi marca de agua"</span>
+                        <span class="prompt-good"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Sos un director creativo de una agencia de publicidad premium. Escribí 5 slogans para una marca de agua mineral enfocada en deportistas urbanos. Estilo: directo, minimalista, en inglés."</span>
                     </div>
                 </div>
                 <div class="prompt-card">
@@ -218,8 +281,8 @@
                     <h4>Describí el Contexto Completo</h4>
                     <p>Para imágenes y videos, más detalle = mejor resultado.</p>
                     <div class="prompt-example">
-                        <span class="prompt-bad">❌ "Logo para empresa de tecnología"</span>
-                        <span class="prompt-good">✅ "Minimal logo for a B2B SaaS company called 'Nexora'. Icon only, no text. Abstract geometric shape suggesting connectivity and growth. Color palette: deep navy and electric blue. White background. SVG style."</span>
+                        <span class="prompt-bad"><i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Logo para empresa de tecnología"</span>
+                        <span class="prompt-good"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Minimal logo for a B2B SaaS company called 'Nexora'. Icon only, no text. Abstract geometric shape suggesting connectivity and growth. Color palette: deep navy and electric blue. White background. SVG style."</span>
                     </div>
                 </div>
                 <div class="prompt-card">
@@ -227,8 +290,8 @@
                     <h4>Iterá, No Aceptes lo Primero</h4>
                     <p>El primer resultado es siempre el más genérico. Pedí variaciones.</p>
                     <div class="prompt-example">
-                        <span class="prompt-good">✅ "Mantené el estilo pero hacé el ícono 30% más simple y que el color principal sea más saturado"</span>
-                        <span class="prompt-good" style="margin-top: 0.5rem;">✅ "Dame 3 variaciones: una más corporativa, una más joven y una más premium"</span>
+                        <span class="prompt-good"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Mantené el estilo pero hacé el ícono 30% más simple y que el color principal sea más saturado"</span>
+                        <span class="prompt-good" style="margin-top: 0.5rem;"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Dame 3 variaciones: una más corporativa, una más joven y una más premium"</span>
                     </div>
                 </div>
                 <div class="prompt-card">
@@ -236,7 +299,7 @@
                     <h4>Chain of Thought para Estrategia</h4>
                     <p>Pedile que piense antes de responder en tareas complejas.</p>
                     <div class="prompt-example">
-                        <span class="prompt-good">✅ "Antes de responder, analizá: 1) el mercado objetivo, 2) la competencia, 3) la propuesta de valor. Luego escribí el pitch."</span>
+                        <span class="prompt-good"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> "Antes de responder, analizá: 1) el mercado objetivo, 2) la competencia, 3) la propuesta de valor. Luego escribí el pitch."</span>
                     </div>
                 </div>
             </div>
@@ -274,24 +337,24 @@
 
             <div class="deadlines-row reveal" style="margin-top: 4rem;">
                 <div class="deadline-item">
-                    <span class="deadline-icon">📦</span>
+                    <span class="deadline-icon"><i data-lucide="package" style="width:22px;height:22px;"></i></span>
                     <div>
                         <strong>Entrega final</strong>
-                        <span class="deadline-date">2 de Junio</span>
+                        <span class="deadline-date">26 de Mayo · 14:00 hs</span>
                     </div>
                 </div>
                 <div class="deadline-item deadline-item--warn">
-                    <span class="deadline-icon">⚠️</span>
+                    <span class="deadline-icon"><i data-lucide="alert-triangle" style="width:22px;height:22px;"></i></span>
                     <div>
                         <strong>Fuera de término → nota máx. 4</strong>
-                        <span class="deadline-date">Después del 2 de Junio</span>
+                        <span class="deadline-date">Después del 26 de Mayo, 14:00 hs</span>
                     </div>
                 </div>
                 <div class="deadline-item deadline-item--warn">
-                    <span class="deadline-icon">🔄</span>
+                    <span class="deadline-icon"><i data-lucide="refresh-cw" style="width:22px;height:22px;"></i></span>
                     <div>
                         <strong>Recuperatorio</strong>
-                        <span class="deadline-date">16 de Junio</span>
+                        <span class="deadline-date">9 de Junio</span>
                     </div>
                 </div>
             </div>
@@ -400,7 +463,7 @@
                             <div class="file-upload-wrapper" id="file-upload-wrapper">
                                 <input type="file" id="adjuntos" multiple class="file-upload-input">
                                 <div class="file-upload-button" id="file-upload-button">
-                                    <span id="file-upload-label">📁 Seleccionar archivos o arrastrar aquí</span>
+                                    <span id="file-upload-label"><i data-lucide="upload" style="width:16px;height:16px;vertical-align:-3px;"></i> Seleccionar archivos o arrastrar aquí</span>
                                 </div>
                                 <ul id="file-list" style="margin:0.75rem 0 0;padding:0;list-style:none;display:none;"></ul>
                             </div>
@@ -426,38 +489,98 @@
                 <h3>Dar presente</h3>
                 <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 0.5rem;">Seleccioná tu nombre y la clase a la que estás asistiendo.</p>
             </div>
-            <form id="attendance-form" class="attendance-form">
-                <div class="form-group">
-                    <label for="att-comision">Comisión</label>
-                    <select id="att-comision" required>
-                        <option value="">Seleccionar...</option>
-                        <option value="14-16">Martes 14:00 - 16:00</option>
-                        <option value="16-18">Martes 16:00 - 18:00</option>
-                    </select>
+            <!-- Two-col body: dashboard LEFT, form RIGHT -->
+            <div class="attendance-body">
+                <!-- Mini dashboard personal -->
+                <div id="personal-dashboard" class="dashboard-card">
+                    <div class="dashboard-icon-wrap"><i data-lucide="user-circle" style="width:28px;height:28px;color:var(--accent-dark);"></i></div>
+                    <h4 id="dashboard-greeting">Seleccioná tu nombre</h4>
+                    <p class="dashboard-hint">Tu estado aparece acá</p>
+                    <div class="dashboard-status-row">
+                        <div class="dashboard-status-item">
+                            <span class="dashboard-status-label"><i data-lucide="calendar-check" style="width:13px;height:13px;vertical-align:-2px;"></i> Asistencia</span>
+                            <span id="ds-att" class="dashboard-status-value ds-dim">—</span>
+                        </div>
+                        <div class="dashboard-status-item">
+                            <span class="dashboard-status-label"><i data-lucide="send" style="width:13px;height:13px;vertical-align:-2px;"></i> Entrega</span>
+                            <span id="ds-sub" class="dashboard-status-value ds-dim">—</span>
+                        </div>
+                        <div class="dashboard-status-item">
+                            <span class="dashboard-status-label"><i data-lucide="timer" style="width:13px;height:13px;vertical-align:-2px;"></i> Tiempo restante</span>
+                            <span id="ds-time" class="dashboard-status-value ds-dim">—</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="att-alumno">Tu nombre</label>
-                    <select id="att-alumno" required>
-                        <option value="">Seleccionar comisión primero...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="att-clase">Clase</label>
-                    <select id="att-clase" required>
-                        <option value="">Seleccionar clase...</option>
-                        <option value="clase-1">Clase 1 — Mar 5 Mayo</option>
-                        <option value="clase-2">Clase 2 — Mar 12 Mayo</option>
-                        <option value="clase-3">Clase 3 — Mar 19 Mayo</option>
-                    </select>
-                </div>
-                <label class="declaration-check">
-                    <input type="checkbox" id="att-declaration" required>
-                    <span>Declaro que estuve presente en esta clase. Registrar asistencia falsa puede resultar en la pérdida de la regularidad de la materia.</span>
-                </label>
-                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:1.5rem;">
-                    Registrar asistencia ✓
-                </button>
-            </form>
+                <!-- Form selectors -->
+                <form id="attendance-form" class="attendance-form">
+                    <div class="form-group">
+                        <label for="att-comision">Comisión</label>
+                        <select id="att-comision" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="14-16">Martes 14:00 - 16:00</option>
+                            <option value="16-18">Martes 16:00 - 18:00</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="att-alumno">Tu nombre</label>
+                        <select id="att-alumno" required>
+                            <option value="">Seleccionar comisión primero...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="att-clase">Clase</label>
+                        <select id="att-clase" required>
+                            <option value="">Seleccionar clase...</option>
+                            <option value="clase-1">Clase 1 — Mar 5 Mayo</option>
+                            <option value="clase-2">Clase 2 — Mar 12 Mayo</option>
+                            <option value="clase-3">Clase 3 — Mar 19 Mayo</option>
+                        </select>
+                    </div>
+                    <label class="declaration-check">
+                        <input type="checkbox" id="att-declaration" required>
+                        <span>Declaro que estuve presente en esta clase. Registrar asistencia falsa puede resultar en la pérdida de la regularidad de la materia.</span>
+                    </label>
+                    <button type="submit" id="att-submit-btn" class="btn-primary" style="width:100%; justify-content:center; margin-top:1.5rem;">
+                        <i data-lucide="check" style="width:16px;height:16px;"></i> Registrar asistencia
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="container">
+        <span class="eyebrow reveal">Preguntas Frecuentes</span>
+        <h2 class="section-header reveal">¿Tenés <span>dudas?</span></h2>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-q">¿Tenemos que pagar alguna herramienta? <span class="faq-icon">+</span></button>
+                <div class="faq-a">No. Todas las herramientas del taller tienen plan gratuito suficiente para completar el proyecto. No gasten nada. Si alguna les pide pago, avisen y buscamos una alternativa gratis.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">¿Cuántas personas por grupo? <span class="faq-icon">+</span></button>
+                <div class="faq-a">Grupos de 3 a 5 personas. No trabajen solos — la idea es que cada uno tome un área: branding, web, video/audio, y estrategia.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">¿Cuál es la fecha límite exacta? <span class="faq-icon">+</span></button>
+                <div class="faq-a">26 de Mayo a las 14:00 hs. Después de esa hora la nota máxima es 4. El formulario de entrega sigue abierto, pero queda registrado el timestamp.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">¿El video tiene que ser profesional? <span class="faq-icon">+</span></button>
+                <div class="faq-a">No. Tiene que ser convincente, no perfecto. 30-45 segundos, con el jingle de Suno encima de los clips de video. Lo importante es que cuente qué es la marca y por qué existe.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">¿La web tiene que tener dominio propio? <span class="faq-icon">+</span></button>
+                <div class="faq-a">No hace falta pagar un dominio. Firebase Hosting, Vercel, Netlify o GitHub Pages dan un subdominio gratuito. Lo que importa es que sea una URL pública y funcione en el cel.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">¿Puedo usar ChatGPT para todo? <span class="faq-icon">+</span></button>
+                <div class="faq-a">Sí, pero no. La IA es la herramienta, no el producto. El juicio editorial — qué queda, qué se cambia, qué se corta — es tuyo. Un trabajo que parece generado sin criterio propio baja nota.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">¿Qué pasa si no llego a la entrega? <span class="faq-icon">+</span></button>
+                <div class="faq-a">Hay instancia de recuperatorio. La fecha la coordinamos dentro del cuatrimestre. Igual, el objetivo es que terminen en clase para no tener que llegar a eso.</div>
+            </div>
         </div>
     </section>
 
@@ -480,14 +603,37 @@
                 </div>
                 <div class="admin-commission-tabs" style="display:flex;gap:0.5rem;margin:0.75rem 0 1rem;">
                     <button class="admin-com-btn active" data-com="all" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--accent-dark);background:var(--accent-dark);color:#fff;font-size:0.8rem;cursor:pointer;">Todas</button>
-                    <button class="admin-com-btn" data-com="14-16" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">14:00 – 16:00</button>
-                    <button class="admin-com-btn" data-com="16-18" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">16:00 – 18:00</button>
+                    <button class="admin-com-btn" data-com="14-16" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">14:00 – 16:00</button>
+                    <button class="admin-com-btn" data-com="16-18" style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">16:00 – 18:00</button>
+                    <button id="export-csv-btn" style="margin-left:auto;padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:0.8rem;cursor:pointer;">&#x2B07; CSV</button>
                 </div>
                 <div id="admin-attendance-list" class="admin-list"></div>
             </div>
             <div id="entregas-tab" class="modal-tab-content">
                 <div id="admin-submissions-list" class="admin-list"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp QR Modal -->
+    <div id="wa-modal" class="wa-modal-overlay" style="display:none;">
+        <div class="wa-modal-card">
+            <button class="wa-modal-close" id="wa-modal-close">&times;</button>
+            <div class="wa-modal-header">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                <div>
+                    <div class="wa-modal-title">Austral · Q1 2026</div>
+                    <div class="wa-modal-sub">Grupo de WhatsApp</div>
+                </div>
+            </div>
+            <div class="wa-qr-wrap">
+                <div id="wa-qrcode"></div>
+            </div>
+            <a href="https://chat.whatsapp.com/CjTdhaCKmO00QQXFx1BNfh?mode=gi_t"
+               target="_blank" rel="noopener" class="wa-link">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                Unirme al grupo
+            </a>
         </div>
     </div>
 
@@ -499,5 +645,33 @@
     </footer>
 
     <script type="module" src="./src/main.js"></script>
+    <script>
+        // WhatsApp QR modal
+        const waBtn = document.getElementById('whatsapp-btn');
+        const waModal = document.getElementById('wa-modal');
+        const waModalClose = document.getElementById('wa-modal-close');
+        let qrGenerated = false;
+        function openWaModal() {
+            waModal.style.display = 'flex';
+            requestAnimationFrame(() => waModal.classList.add('open'));
+            if (!qrGenerated) {
+                new QRCode(document.getElementById('wa-qrcode'), {
+                    text: 'https://chat.whatsapp.com/CjTdhaCKmO00QQXFx1BNfh?mode=gi_t',
+                    width: 220, height: 220,
+                    colorDark: '#111827', colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                qrGenerated = true;
+            }
+        }
+        function closeWaModal() {
+            waModal.classList.remove('open');
+            setTimeout(() => { waModal.style.display = 'none'; }, 280);
+        }
+        waBtn.addEventListener('click', openWaModal);
+        waModalClose.addEventListener('click', closeWaModal);
+        waModal.addEventListener('click', e => { if (e.target === waModal) closeWaModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWaModal(); });
+    </script>
 </body>
 </html>

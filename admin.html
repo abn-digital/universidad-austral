@@ -6,6 +6,7 @@
     <title>Admin · Taller IA Austral</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --bg: #f5f4f7;
@@ -235,6 +236,160 @@
             margin-top: 0.5rem; background: var(--surface2);
         }
 
+        /* ── Student Notes Panel ── */
+        .notes-panel {
+            position: fixed; inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+        .notes-panel.open { pointer-events: all; }
+        .notes-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(26,22,37,0.45);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .notes-panel.open .notes-backdrop { opacity: 1; }
+        .notes-drawer {
+            position: absolute; right: 0; top: 0; bottom: 0;
+            width: 400px;
+            background: white;
+            border-left: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            box-shadow: -20px 0 60px rgba(0,0,0,0.12);
+        }
+        .notes-panel.open .notes-drawer { transform: translateX(0); }
+        .notes-drawer-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .notes-drawer-header h3 { flex: 1; font-size: 1rem; font-weight: 700; }
+        .notes-close {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-dim); padding: 0.25rem;
+            border-radius: 6px; display: flex; align-items: center;
+        }
+        .notes-close:hover { background: var(--surface2); }
+        .notes-drawer-body { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .notes-stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+        .notes-stat {
+            background: var(--surface2); border-radius: 10px;
+            padding: 0.75rem; text-align: center;
+        }
+        .notes-stat-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.3rem; }
+        .notes-stat-val { font-size: 1.3rem; font-weight: 700; }
+        .notes-stat-val.green { color: var(--present); }
+        .notes-stat-val.red { color: var(--absent); }
+        .notes-stat-val.purple { color: var(--submitted); }
+        .notes-class-row {
+            display: flex; flex-direction: column; gap: 0.4rem;
+        }
+        .notes-class-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 0.75rem;
+            background: var(--surface2); border-radius: 8px;
+            font-size: 0.82rem;
+        }
+        .notes-section-title {
+            font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--text-dim); margin-bottom: 0.25rem;
+        }
+        .notes-textarea {
+            width: 100%; min-height: 130px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            padding: 0.85rem 1rem; font-size: 0.875rem;
+            font-family: inherit; resize: vertical;
+            outline: none; transition: border-color 0.2s;
+            line-height: 1.55; color: var(--text);
+        }
+        .notes-textarea:focus { border-color: var(--accent); }
+        .notes-save-btn {
+            width: 100%; padding: 0.75rem;
+            background: var(--accent); color: white;
+            border: none; border-radius: 10px;
+            font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            transition: background 0.2s; display: flex;
+            align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .notes-save-btn:hover { background: var(--accent-light); }
+        .notes-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .notes-saved-msg {
+            text-align: center; font-size: 0.8rem;
+            color: var(--present); font-weight: 600;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .notes-saved-msg.show { opacity: 1; }
+        .note-history-item {
+            background: var(--surface2); border-radius: 8px;
+            padding: 0.75rem 1rem; font-size: 0.82rem;
+            line-height: 1.5; color: var(--text);
+            border-left: 3px solid var(--accent);
+        }
+        .note-history-ts { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.35rem; }
+
+        /* ── Alumnos page ── */
+        .students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.75rem; }
+        .student-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; padding: 1rem 1.25rem;
+            cursor: pointer; transition: all 0.15s;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .student-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(88,56,163,0.1); transform: translateY(-1px); }
+        .student-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(88,56,163,0.1);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.8rem; font-weight: 700;
+            color: var(--accent);
+        }
+        .student-card-info { flex: 1; min-width: 0; }
+        .student-card-name { font-size: 0.875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .student-card-com { font-size: 0.72rem; color: var(--text-dim); }
+        .student-card-dots { display: flex; gap: 0.25rem; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-present { background: var(--present); }
+        .dot-absent { background: var(--border); }
+        .has-note-icon { color: var(--accent); flex-shrink: 0; }
+
+        /* ── Grade picker ── */
+        .grade-picker {
+            display: flex; gap: 0.35rem; flex-wrap: wrap;
+            margin-top: 0.35rem;
+        }
+        .grade-btn {
+            width: 36px; height: 36px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px; background: white;
+            font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            color: var(--text-dim);
+            transition: all 0.15s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .grade-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(88,56,163,0.06); }
+        .grade-btn.active-grade-low  { background: #fee2e2; border-color: #ef4444; color: #dc2626; }
+        .grade-btn.active-grade-mid  { background: #fef3c7; border-color: #f59e0b; color: #b45309; }
+        .grade-btn.active-grade-high { background: #dcfce7; border-color: #22c55e; color: #16a34a; }
+
+        /* Grade badge on student card */
+        .student-grade-badge {
+            font-size: 0.72rem; font-weight: 700;
+            padding: 0.18rem 0.5rem;
+            border-radius: 99rem;
+            flex-shrink: 0;
+        }
+        .grade-badge-low  { background: #fee2e2; color: #dc2626; }
+        .grade-badge-mid  { background: #fef3c7; color: #b45309; }
+        .grade-badge-high { background: #dcfce7; color: #16a34a; }
+
         .empty { text-align: center; padding: 3rem; color: var(--text-dim); font-size: 0.9rem; }
     </style>
 </head>
@@ -243,7 +398,7 @@
 <!-- LOGIN -->
 <div id="login-screen">
     <div class="login-card">
-        <div class="login-logo">🎓</div>
+        <div class="login-logo" style="display:flex;align-items:center;justify-content:center;margin-bottom:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5838A3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
         <h1>Panel de Administración</h1>
         <p>Taller de IA · Universidad Austral</p>
         <input id="pass-input" type="password" class="login-input" placeholder="Contraseña" />
@@ -270,12 +425,26 @@
         <nav class="sidebar">
             <div class="sidebar-section">
                 <div class="sidebar-label">Asistencia</div>
-                <button class="sidebar-btn active" data-page="attendance">📋 Lista de Asistencia</button>
+                <button class="sidebar-btn active" data-page="attendance">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    Lista de Asistencia
+                </button>
             </div>
             <hr class="sidebar-divider">
             <div class="sidebar-section">
                 <div class="sidebar-label">Entregas</div>
-                <button class="sidebar-btn" data-page="submissions">📦 Proyectos Grupales</button>
+                <button class="sidebar-btn" data-page="submissions">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                    Proyectos Grupales
+                </button>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Alumnos</div>
+                <button class="sidebar-btn" data-page="students">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    Detalle por Alumno
+                </button>
             </div>
         </nav>
 
@@ -287,14 +456,20 @@
                     <p>Seguimiento clase por clase de cada comisión</p>
                 </div>
                 <div class="scorecards" id="att-scorecards"></div>
-                <div class="filters">
-                    <button class="filter-btn active" data-class-filter="clase-1">Clase 1 · 5 May</button>
-                    <button class="filter-btn" data-class-filter="clase-2">Clase 2 · 12 May</button>
-                    <button class="filter-btn" data-class-filter="clase-3">Clase 3 · 19 May</button>
-                    <div class="filter-separator"></div>
-                    <button class="filter-btn active" data-com-filter="all">Todas</button>
-                    <button class="filter-btn" data-com-filter="14-16">14:00 – 16:00</button>
-                    <button class="filter-btn" data-com-filter="16-18">16:00 – 18:00</button>
+                <div class="filters" style="justify-content:space-between;align-items:center;">
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                        <button class="filter-btn active" data-class-filter="clase-1">Clase 1 · 5 May</button>
+                        <button class="filter-btn" data-class-filter="clase-2">Clase 2 · 12 May</button>
+                        <button class="filter-btn" data-class-filter="clase-3">Clase 3 · 19 May</button>
+                        <div class="filter-separator"></div>
+                        <button class="filter-btn active" data-com-filter="all">Todas</button>
+                        <button class="filter-btn" data-com-filter="14-16">14:00 – 16:00</button>
+                        <button class="filter-btn" data-com-filter="16-18">16:00 – 18:00</button>
+                    </div>
+                    <button id="export-csv-btn" class="filter-btn" style="display:flex;align-items:center;gap:0.4rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Exportar CSV
+                    </button>
                 </div>
                 <div class="table-card">
                     <div class="table-header-row">
@@ -321,6 +496,78 @@
                 </div>
                 <div class="sub-grid" id="sub-grid"></div>
             </div>
+
+            <!-- ALUMNOS PAGE -->
+            <div class="page" id="page-students">
+                <div class="page-header">
+                    <h2>Detalle por Alumno</h2>
+                    <p>Click en un alumno para ver su historial y agregar notas</p>
+                </div>
+                <div class="filters" style="margin-bottom:1.25rem;">
+                    <button class="filter-btn active" data-students-com="all">Todas</button>
+                    <button class="filter-btn" data-students-com="14-16">14:00 – 16:00</button>
+                    <button class="filter-btn" data-students-com="16-18">16:00 – 18:00</button>
+                </div>
+                <div class="students-grid" id="students-grid"></div>
+            </div>
+
+            <!-- STUDENT NOTES PANEL -->
+            <div class="notes-panel" id="notes-panel">
+                <div class="notes-backdrop" id="notes-backdrop"></div>
+                <div class="notes-drawer">
+                    <div class="notes-drawer-header">
+                        <div class="student-avatar" id="notes-avatar" style="width:40px;height:40px;">--</div>
+                        <h3 id="notes-student-name">Alumno</h3>
+                        <button class="notes-close" id="notes-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <div class="notes-drawer-body">
+                        <!-- Stats -->
+                        <div class="notes-stat-row" id="notes-stats"></div>
+                        <!-- Asistencia por clase -->
+                        <div>
+                            <div class="notes-section-title">Asistencia por clase</div>
+                            <div class="notes-class-row" id="notes-classes"></div>
+                        </div>
+                        <!-- Entrega -->
+                        <div id="notes-submission-block"></div>
+                        <!-- Calificación -->
+                        <div>
+                            <div class="notes-section-title">Calificación (1 – 10)</div>
+                            <div class="grade-picker" id="grade-picker">
+                                <button class="grade-btn" data-grade="1">1</button>
+                                <button class="grade-btn" data-grade="2">2</button>
+                                <button class="grade-btn" data-grade="3">3</button>
+                                <button class="grade-btn" data-grade="4">4</button>
+                                <button class="grade-btn" data-grade="5">5</button>
+                                <button class="grade-btn" data-grade="6">6</button>
+                                <button class="grade-btn" data-grade="7">7</button>
+                                <button class="grade-btn" data-grade="8">8</button>
+                                <button class="grade-btn" data-grade="9">9</button>
+                                <button class="grade-btn" data-grade="10">10</button>
+                            </div>
+                            <button class="notes-save-btn" id="notes-save-grade-btn" style="margin-top:0.75rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Guardar calificación
+                            </button>
+                            <div class="notes-saved-msg" id="notes-grade-saved-msg">✓ Calificación guardada</div>
+                        </div>
+                        <!-- Comentarios -->
+                        <div>
+                            <div class="notes-section-title">Comentarios</div>
+                            <div id="notes-comments-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.75rem;"></div>
+                            <textarea class="notes-textarea" id="notes-textarea" placeholder="Nuevo comentario..." style="min-height:90px;"></textarea>
+                            <button class="notes-save-btn" id="notes-add-comment-btn" style="margin-top:0.6rem;background:#374151;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Agregar comentario
+                            </button>
+                            <div class="notes-saved-msg" id="notes-comment-saved-msg">✓ Comentario agregado</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 </div>
@@ -328,3 +575,4 @@
 <script type="module" src="/src/admin.js"></script>
 </body>
 </html>
+
