@@ -41,6 +41,54 @@ const CLASSES = [
     { key: 'clase-3', label: 'Clase 3 · 19 May' },
 ];
 
+// ── Helpers ───────────────────────────────────────────────────
+function studentKey(name) {
+    return name.toLowerCase().replace(/\s+/g, '_').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function getStudentGrade(studentName) {
+    const key = studentKey(studentName);
+    const individualGrade = studentNotes[key]?.grade || null;
+    
+    // Find all submissions this student belongs to
+    const studentSubs = submissions.filter(sub => 
+        (sub.integrantes || []).some(i => i.nombre === studentName)
+    );
+    
+    // Collect all project grades
+    const projectGrades = studentSubs
+        .map(sub => sub.grade)
+        .filter(g => typeof g === 'number');
+        
+    if (projectGrades.length === 0) {
+        return individualGrade;
+    }
+    
+    const bestProjectGrade = Math.max(...projectGrades);
+    
+    if (individualGrade === null) {
+        return bestProjectGrade;
+    }
+    
+    return Math.max(individualGrade, bestProjectGrade);
+}
+
+function formatTimestamp(timestamp, includeEmpty = '—') {
+    if (!timestamp) return includeEmpty;
+    let date;
+    if (typeof timestamp.toDate === 'function') {
+        date = timestamp.toDate();
+    } else if (typeof timestamp.seconds === 'number') {
+        date = new Date(timestamp.seconds * 1000 + (timestamp.nanoseconds || 0) / 1000000);
+    } else {
+        date = new Date(timestamp);
+    }
+    if (!date || isNaN(date.getTime())) {
+        return includeEmpty;
+    }
+    return date.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
 // ── State ─────────────────────────────────────────────────────
 let attendance = [];
 let submissions = [];
@@ -113,6 +161,29 @@ document.querySelectorAll('.sidebar-btn').forEach(btn => {
         btn.classList.add('active');
         document.getElementById(`page-${btn.dataset.page}`).classList.add('active');
     });
+});
+
+// ── Save project grade (via delegation) ───────────────────────
+document.getElementById('sub-grid').addEventListener('change', async (e) => {
+    if (e.target.classList.contains('project-grade-select')) {
+        const subId = e.target.dataset.subId;
+        const gradeValue = e.target.value ? parseInt(e.target.value) : null;
+        const statusEl = document.getElementById(`save-status-${subId}`);
+        
+        try {
+            await setDoc(doc(db, 'submissions', subId), {
+                grade: gradeValue,
+                gradeUpdatedAt: serverTimestamp()
+            }, { merge: true });
+            
+            if (statusEl) {
+                statusEl.style.display = 'inline';
+                setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+            }
+        } catch (err) {
+            console.error('Error saving project grade:', err);
+        }
+    }
 });
 
 // ── Attendance filters ────────────────────────────────────────
@@ -207,6 +278,27 @@ document.getElementById('export-csv-btn').addEventListener('click', () => {
     a.click(); URL.revokeObjectURL(url);
 });
 
+// ── CSV Export Grades ─────────────────────────────────────────
+document.getElementById('export-grades-btn').addEventListener('click', () => {
+    const allStudents = [
+        ...studentData['14-16'].map(s => ({ ...s, com: '14-16' })),
+        ...studentData['16-18'].map(s => ({ ...s, com: '16-18' }))
+    ];
+    allStudents.sort((a, b) => a.name.localeCompare(b.name));
+    
+    const rows = [['Nombre', 'Comisión', 'Nota Final']];
+    allStudents.forEach(s => {
+        const grade = getStudentGrade(s.name);
+        rows.push([s.name, s.com, grade !== null ? grade : '—']);
+    });
+    const csv = rows.map(r => r.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `notas-austral-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+});
+
 // ── Render Attendance ─────────────────────────────────────────
 function renderAttendance() {
     const allStudents = activeCom === '14-16' ? studentData['14-16']
@@ -247,8 +339,7 @@ function renderAttendance() {
         const rec = records.find(a => a.nombre === s.name);
         const isPresent = !!rec;
         const com = isPresent ? rec.comision : (studentData['14-16'].find(x => x.name === s.name) ? '14-16' : '16-18');
-        const ts = rec?.timestamp?.toDate ? rec.timestamp.toDate() : rec?.timestamp ? new Date(rec.timestamp) : null;
-        const tsStr = ts ? ts.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+        const tsStr = formatTimestamp(rec?.timestamp, '—');
         body.innerHTML += `
         <div class="table-row">
             <span class="student-name">${s.name}</span>
@@ -290,8 +381,7 @@ function renderSubmissions() {
     }
     grid.innerHTML = '';
     filtered.forEach(s => {
-        const ts = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
-        const fecha = s.timestamp ? ts.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+        const fecha = formatTimestamp(s.timestamp, '—');
 
         const linksHTML = (s.links || []).filter(l => l).map(l =>
             `<a href="${l}" target="_blank" class="link-item">
@@ -300,16 +390,18 @@ function renderSubmissions() {
 
         const chips = (s.integrantes || []).map(i => `<span class="chip">${i.nombre}</span>`).join('');
 
-        const filesHTML = (s.adjuntos || []).map(a => {
-            const isImage = /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(a.nombre);
-            return `
-                <a href="${a.url}" target="_blank" class="file-chip">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                    ${a.nombre}
-                </a>
-                ${isImage ? `<img src="${a.url}" class="img-preview" alt="${a.nombre}" />` : ''}
-            `;
-        }).join('');
+        const filesHTML = (s.adjuntos || [])
+            .filter(a => a && typeof a.nombre === 'string' && a.url)
+            .map(a => {
+                const isImage = /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(a.nombre);
+                return `
+                    <a href="${a.url}" target="_blank" class="file-chip">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                        ${a.nombre}
+                    </a>
+                    ${isImage ? `<img src="${a.url}" class="img-preview" alt="${a.nombre}" />` : ''}
+                `;
+            }).join('');
 
         grid.innerHTML += `
         <div class="sub-card">
@@ -327,6 +419,14 @@ function renderSubmissions() {
             ${s.comments ? `<div class="sub-section-label">Proceso & Herramientas</div>
             <p style="font-size:0.82rem;color:#6b6080;line-height:1.55;">${s.comments}</p>` : ''}
             ${filesHTML ? `<div class="sub-section-label">Archivos</div>${filesHTML}` : ''}
+            <div class="sub-section-label">Calificación del Proyecto</div>
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;">
+                <select class="project-grade-select" data-sub-id="${s.id}" style="padding:0.45rem 0.75rem; border-radius:8px; border:1px solid var(--border); font-family:inherit; font-size:0.82rem; outline:none; background:white; color:var(--text); cursor:pointer; min-width:90px;">
+                    <option value="">Sin nota</option>
+                    ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => `<option value="${v}" ${s.grade === v ? 'selected' : ''}>${v}</option>`).join('')}
+                </select>
+                <span class="project-save-status" id="save-status-${s.id}" style="font-size:0.75rem; color:var(--present); font-weight:600; display:none;">✓ Guardado</span>
+            </div>
         </div>`;
     });
 }
@@ -346,7 +446,7 @@ function renderStudents() {
         const key = studentKey(s.name);
         const noteData = studentNotes[key];
         const hasNote = noteData?.note?.trim();
-        const grade = noteData?.grade || null;
+        const grade = getStudentGrade(s.name);
         const initials = s.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 
         // Attendance dots per class
@@ -383,9 +483,6 @@ function renderStudents() {
 }
 
 // ── Student Notes Panel ───────────────────────────────────────
-function studentKey(name) {
-    return name.toLowerCase().replace(/\s+/g, '_').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
 
 function openStudentPanel(name) {
     openStudentName = name;
@@ -439,8 +536,7 @@ function renderNotesDrawer(name) {
     document.getElementById('notes-classes').innerHTML = CLASSES.map(c => {
         const rec = attendance.find(a => a.nombre === name && a.clase === c.key);
         const present = !!rec;
-        const ts = rec?.timestamp?.toDate ? rec.timestamp.toDate() : rec?.timestamp ? new Date(rec.timestamp) : null;
-        const tsStr = ts ? ts.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        const tsStr = formatTimestamp(rec?.timestamp, '');
         return `<div class="notes-class-item">
             <span>${c.label}</span>
             <span style="display:flex;align-items:center;gap:0.4rem;">
@@ -472,6 +568,40 @@ function renderNotesDrawer(name) {
     // Load grade
     selectedGrade = studentNotes[key]?.grade || null;
     updateGradePicker();
+
+    // Render project grade info if any
+    const gradeInfoEl = document.getElementById('notes-project-grade-info');
+    if (gradeInfoEl) {
+        const studentSubs = submissions.filter(sub => 
+            (sub.integrantes || []).some(i => i.nombre === name)
+        );
+        const projectGrades = studentSubs
+            .map(sub => ({ name: sub.empresa || 'Sin nombre', grade: sub.grade }))
+            .filter(p => typeof p.grade === 'number');
+
+        if (projectGrades.length > 0) {
+            const bestProj = projectGrades.reduce((max, p) => p.grade > max.grade ? p : max, projectGrades[0]);
+            const finalGrade = getStudentGrade(name);
+            
+            gradeInfoEl.innerHTML = `
+                <div style="font-size:0.78rem; color:var(--text-dim); background:var(--surface2); padding:0.65rem 0.85rem; border-radius:8px; border:1px solid var(--border); line-height:1.4;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+                        <span>Nota de proyecto:</span>
+                        <strong>${bestProj.grade}/10</strong>
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:0.4rem; font-style:italic;">
+                        Proyecto: "${bestProj.name}"${projectGrades.length > 1 ? ` (de ${projectGrades.length} proyectos)` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:0.4rem; font-weight:600; color:var(--accent);">
+                        <span>Nota final:</span>
+                        <span>${finalGrade}/10</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            gradeInfoEl.innerHTML = '';
+        }
+    }
 
     // Clear textarea
     document.getElementById('notes-textarea').value = '';

@@ -503,10 +503,16 @@
                     <h2>Detalle por Alumno</h2>
                     <p>Click en un alumno para ver su historial y agregar notas</p>
                 </div>
-                <div class="filters" style="margin-bottom:1.25rem;">
-                    <button class="filter-btn active" data-students-com="all">Todas</button>
-                    <button class="filter-btn" data-students-com="14-16">14:00 – 16:00</button>
-                    <button class="filter-btn" data-students-com="16-18">16:00 – 18:00</button>
+                <div class="filters" style="margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button class="filter-btn active" data-students-com="all">Todas</button>
+                        <button class="filter-btn" data-students-com="14-16">14:00 – 16:00</button>
+                        <button class="filter-btn" data-students-com="16-18">16:00 – 18:00</button>
+                    </div>
+                    <button id="export-grades-btn" class="filter-btn" style="display:flex; align-items:center; gap:0.4rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Exportar Notas
+                    </button>
                 </div>
                 <div class="students-grid" id="students-grid"></div>
             </div>
@@ -547,6 +553,7 @@
                                 <button class="grade-btn" data-grade="9">9</button>
                                 <button class="grade-btn" data-grade="10">10</button>
                             </div>
+                            <div id="notes-project-grade-info" style="margin-top: 0.5rem;"></div>
                             <button class="notes-save-btn" id="notes-save-grade-btn" style="margin-top:0.75rem;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                                 Guardar calificación
