@@ -351,7 +351,7 @@ function renderSubmissions() {
         </div>
         ${COMISIONES.map(c => `
         <div class="scorecard">
-            <div class="scorecard-label">Comisión ${c.key}</div>
+            <div class="scorecard-label">${c.shortLabel}</div>
             <div class="scorecard-value">${submissions.filter(s => s.comision === c.key).length}</div>
             <div class="scorecard-sub">entregas recibidas</div>
         </div>`).join('')}

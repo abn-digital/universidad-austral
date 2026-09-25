@@ -5,88 +5,97 @@
 
 // Identificador del cuatrimestre actual. Se guarda en cada asistencia y
 // entrega nueva, y el portal y el admin solo muestran los registros que lo tienen.
-export const COHORT_ID = '2026-Q1';
+export const COHORT_ID = '2026-Q2';
 
 // Los registros creados antes de que existiera el campo `cohorte` son de este
 // cuatrimestre. No cambiar.
 export const LEGACY_COHORT_ID = '2026-Q1';
 
 // Fecha límite de la entrega final (countdown y mini-dashboard del alumno).
-export const DEADLINE = new Date('2026-05-26T14:00:00-03:00');
+// Mientras sea null, el portal la muestra como "a definir".
+// Formato: new Date('2026-11-17T14:00:00-03:00')
+export const DEADLINE = null;
 
 // Google Apps Script que recibe una copia de cada entrega y asistencia.
 export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
 
 // `label`: filtros y detalle del admin. `formLabel`: select de asistencia del portal.
+// Pendiente: sumar la fecha de cada clase (en el Q1 eran p. ej. 'Clase 1 · 5 May' y 'Clase 1 — Mar 5 Mayo').
 export const CLASSES = [
-    { key: 'clase-1', label: 'Clase 1 · 5 May', formLabel: 'Clase 1 — Mar 5 Mayo' },
-    { key: 'clase-2', label: 'Clase 2 · 12 May', formLabel: 'Clase 2 — Mar 12 Mayo' },
-    { key: 'clase-3', label: 'Clase 3 · 19 May', formLabel: 'Clase 3 — Mar 19 Mayo' },
+    { key: 'clase-1', label: 'Clase 1', formLabel: 'Clase 1' },
+    { key: 'clase-2', label: 'Clase 2', formLabel: 'Clase 2' },
+    { key: 'clase-3', label: 'Clase 3', formLabel: 'Clase 3' },
 ];
 
 // `label`: selects del portal. `shortLabel`: filtros del admin.
+// `key` es el código de la comisión en el sistema de la universidad (A1 = Comisión 1, A2 = Comisión 2).
+// Alumnos: "Detalle de inscripción a cursada" A1 y A2 del sistema de la universidad.
 export const COMISIONES = [
     {
-        key: '14-16',
-        label: 'Martes 14:00 - 16:00',
-        shortLabel: '14:00 – 16:00',
+        key: 'A1',
+        label: 'Comisión 1 — Martes 29/9',
+        shortLabel: 'Comisión 1',
         students: [
-            { name: "Valentina Angeleri", email: "vangeleri@mail.austral.edu.ar" },
-            { name: "Mateo Beumont", email: "mbeumont@mail.austral.edu.ar" },
-            { name: "Francisco Bruzone", email: "fbruzone@mail.austral.edu.ar" },
-            { name: "Benjamin Burgo", email: "bburgo@mail.austral.edu.ar" },
-            { name: "Mora Cier", email: "mcier@mail.austral.edu.ar" },
-            { name: "Pedro Deluchi", email: "pdeluchi@mail.austral.edu.ar" },
-            { name: "Camila María de Salas", email: "cmdesalas@mail.austral.edu.ar" },
-            { name: "Iñaki Dominguez", email: "idominguez2@mail.austral.edu.ar" },
-            { name: "Ignacio Domnanovich", email: "idomnanovich@mail.austral.edu.ar" },
-            { name: "Juan Ignacio Fabbro", email: "jfabbro@mail.austral.edu.ar" },
-            { name: "Milagros Fernandez", email: "mfernandez27@mail.austral.edu.ar" },
-            { name: "Renata Lucía Fernández", email: "rlfernandez@mail.austral.edu.ar" },
-            { name: "Ignacio Gomez Galissier", email: "igomezgalissier@mail.austral.edu.ar" },
-            { name: "Joaquin Albano Harguindeguy", email: "jaharguindeguy@mail.austral.edu.ar" },
-            { name: "Lucas Leonard", email: "lleonard@mail.austral.edu.ar" },
-            { name: "Trinidad Leonard", email: "tleonard@mail.austral.edu.ar" },
-            { name: "Mateo Josue Leonov", email: "mjleonov@mail.austral.edu.ar" },
-            { name: "Santiago Martinez Alvarez", email: "smartinezalvarez@mail.austral.edu.ar" },
-            { name: "Lourdes Massuh", email: "lmassuh@mail.austral.edu.ar" },
-            { name: "Benjamin Merhar", email: "bmerhar@mail.austral.edu.ar" },
-            { name: "Camila Nemes Meier", email: "cmeier@mail.austral.edu.ar" },
-            { name: "Augusto Piepenbrink", email: "apiepenbrink@mail.austral.edu.ar" },
-            { name: "Josefina Sfilio Glassmann", email: "jsfilioglassmann@mail.austral.edu.ar" },
-            { name: "Martina Soto", email: "msoto3@mail.austral.edu.ar" },
-            { name: "Nicolas Martin Torres", email: "nmtorres@mail.austral.edu.ar" },
-            { name: "Bauti Ballatore", email: "bballatore@mail.austral.edu.ar" }
+            { name: "Teodora Alegre", email: "talegre@mail.austral.edu.ar" },
+            { name: "Eliseo Antonio Alvarez Brescia", email: "ealvarezbrescia@mail.austral.edu.ar" },
+            { name: "Lautaro Barrozo", email: "lbarrozo@mail.austral.edu.ar" },
+            { name: "Vicente Benedit", email: "vbenedit@mail.austral.edu.ar" },
+            { name: "Joaquin Brunengo D´Elia", email: "jbrunengo@mail.austral.edu.ar" },
+            { name: "Sol Cornejo Saravia", email: "scornejosaravia@mail.austral.edu.ar" },
+            { name: "Luca Francisco D´Agostino", email: "ldagostino2@mail.austral.edu.ar" },
+            { name: "Marcos Dalma", email: "mdalma@mail.austral.edu.ar" },
+            { name: "Galo Martín D Elia", email: "gmdelia@mail.austral.edu.ar" },
+            { name: "Simon Cruz Donadu", email: "scdonadu@mail.austral.edu.ar" },
+            { name: "Thiago Firmenich Rolón", email: "tfirmenich@mail.austral.edu.ar" },
+            { name: "María Sol Fritz", email: "msfritz@mail.austral.edu.ar" },
+            { name: "Joaquin Simon Lerner", email: "jlerner@mail.austral.edu.ar" },
+            { name: "Isabella Mastronardi Belpoliti", email: "imastronardibelpoli@mail.austral.edu.ar" },
+            { name: "Luisa Otero Monsegur", email: "loteromonsegur@mail.austral.edu.ar" },
+            { name: "Santino Peirano", email: "speirano@mail.austral.edu.ar" },
+            { name: "Gonzalo Pelizzari", email: "gpelizzari@mail.austral.edu.ar" },
+            { name: "Bautista Perez", email: "bperez@mail.austral.edu.ar" },
+            { name: "Agustin Pinto Escalier", email: "apinto1@mail.austral.edu.ar" },
+            { name: "Gonzalo Prola", email: "gprola@mail.austral.edu.ar" },
+            { name: "Marco Rigiroli", email: "mrigiroli@mail.austral.edu.ar" },
+            { name: "Facundo Sanca", email: "fsanca@mail.austral.edu.ar" },
+            { name: "Bautista Valles", email: "bvalles@mail.austral.edu.ar" },
+            { name: "Nicolas Verschoor", email: "nverschoor@mail.austral.edu.ar" }
         ],
     },
     {
-        key: '16-18',
-        label: 'Martes 16:00 - 18:00',
-        shortLabel: '16:00 – 18:00',
+        key: 'A2',
+        label: 'Comisión 2 — Martes 6/10',
+        shortLabel: 'Comisión 2',
         students: [
-            { name: "Mateo Ignacio Aldazabal", email: "maldazabal@mail.austral.edu.ar" },
-            { name: "Bernardino de Aldecoa", email: "bdealdecoa@mail.austral.edu.ar" },
-            { name: "Valentin Del Pino", email: "vdelpino@mail.austral.edu.ar" },
-            { name: "Guadalupe Fernandez Garcia", email: "gfernandezgarcia@mail.austral.edu.ar" },
-            { name: "Facundo Leon García Lorenzi", email: "flgarcialorenzi@mail.austral.edu.ar" },
-            { name: "Juan Ignacio Gomez Cruz", email: "jigomezcruz@mail.austral.edu.ar" },
-            { name: "Eliseo Juan Laborde", email: "elaborde1@mail.austral.edu.ar" },
-            { name: "Juan Cruz López", email: "jclopez@mail.austral.edu.ar" },
-            { name: "Trinidad Maydana", email: "tmaydana@mail.austral.edu.ar" },
-            { name: "Ignacio Luca Montovio", email: "ilmontovio@mail.austral.edu.ar" },
-            { name: "Tiziano Rossignuolo", email: "trossignuolo@mail.austral.edu.ar" },
-            { name: "Miguel Agustin Rozas", email: "marozas@mail.austral.edu.ar" },
-            { name: "Salvador Sanchez Pujol", email: "ssanchezpujol@mail.austral.edu.ar" },
-            { name: "Abril Santeusanio", email: "asanteusanio@mail.austral.edu.ar" },
-            { name: "Ana Sixto", email: "asixto@mail.austral.edu.ar" },
-            { name: "Jose Maria Solanet Zimmermann", email: "jmsolanet@mail.austral.edu.ar" },
-            { name: "Renata Staffolani", email: "rstaffolani@mail.austral.edu.ar" },
-            { name: "Lucila Tomys de Mello", email: "ltomysdemello@mail.austral.edu.ar" }
+            { name: "Cruz Pedro Bosch", email: "cpbosch@mail.austral.edu.ar" },
+            { name: "Milagros Cejas", email: "mcejas@mail.austral.edu.ar" },
+            { name: "Paulina Cinque", email: "pcinque1@mail.austral.edu.ar" },
+            { name: "Camila María de Salas", email: "cmdesalas@mail.austral.edu.ar" },
+            { name: "Jeremías Di Martino", email: "jdimartino@mail.austral.edu.ar" },
+            { name: "Lucero María Dormal", email: "ldormal@mail.austral.edu.ar" },
+            { name: "Camila Gallo Piva", email: "cgallopiva1@mail.austral.edu.ar" },
+            { name: "Javier Hermida Llavallol", email: "jhermidallavallol@mail.austral.edu.ar" },
+            { name: "Felipe Houriet", email: "fhouriet@mail.austral.edu.ar" },
+            { name: "Marcos Pio Juarez Goñi", email: "mpjuarezgoni@mail.austral.edu.ar" },
+            { name: "Santiago Joaquin Kelly", email: "jkelly1@mail.austral.edu.ar" },
+            { name: "Maximo Lagos Marmol", email: "mlagosmarmol1@mail.austral.edu.ar" },
+            { name: "Tomas Andrés Lanusse", email: "tlanusse@mail.austral.edu.ar" },
+            { name: "Mateo Luis Laugle", email: "mlaugle@mail.austral.edu.ar" },
+            { name: "Beltran Marco", email: "bmarco@mail.austral.edu.ar" },
+            { name: "Pilar Medinger", email: "pmedinger@mail.austral.edu.ar" },
+            { name: "Mora Miravé", email: "mmirave@mail.austral.edu.ar" },
+            { name: "Clara Maria Molina Bertone", email: "cmmolinabertone@mail.austral.edu.ar" },
+            { name: "Joaquim Cesar Parisi Radio", email: "jparisi@mail.austral.edu.ar" },
+            { name: "María Pelizzari", email: "mpelizzari@mail.austral.edu.ar" },
+            { name: "Ines María Rodriguez Abancens", email: "irodriguezabancens@mail.austral.edu.ar" },
+            { name: "Lucía Scott", email: "lscott@mail.austral.edu.ar" },
+            { name: "Segundo Tellechea", email: "stellechea@mail.austral.edu.ar" },
+            { name: "Gonzalo José Uranga", email: "guranga@mail.austral.edu.ar" }
         ],
     },
 ];
 
-// { '14-16': [...alumnos], '16-18': [...alumnos] }
+// { A1: [...alumnos], A2: [...alumnos] }
 export const studentData = Object.fromEntries(COMISIONES.map(c => [c.key, c.students]));
 
 export function belongsToCohort(record) {
