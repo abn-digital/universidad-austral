@@ -16,4 +16,5 @@ jobs:
           args: deploy --only hosting:universidad-austral
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           PROJECT_ID: hike-agentic-playground

@@ -50,13 +50,24 @@ npm run build       # Build de producción
 
 ## 🚢 Deploy
 
-Pushear a `main` → GitHub Actions hace el build y deploya **solo Hosting**.
+Hoy el deploy es **manual**. El workflow de GitHub Actions corre en cada push a `main`, pero falla en el paso de deploy porque el repo no tiene cargada una credencial de Firebase.
 
-Las reglas de Firestore **no** se deployan solas. Si cambiás `firestore.rules`:
+```bash
+npm ci && npm run build
+firebase deploy --only hosting:universidad-austral --project hike-agentic-playground
+```
+
+Hace falta estar logueado en el Firebase CLI con una cuenta que tenga acceso al proyecto (`darts@abndigital.com.ar` tiene; `felipe@abndigital.com.ar` no). Si hay varias cuentas, sumá `--account <email>`.
+
+Para que cada push a `main` se deploye solo: crear una service account con rol "Firebase Hosting Admin" y cargar su JSON como secret `GCP_SA_KEY` en GitHub (el workflow ya lo lee).
+
+Las reglas de Firestore **no** se deployan con Hosting. Si cambiás `firestore.rules`:
 
 ```bash
 firebase deploy --only firestore:rules --project hike-agentic-playground
 ```
+
+Ojo: eso reemplaza todas las reglas del proyecto. Antes, revisá en la consola las reglas publicadas (el proyecto puede tener otras apps).
 
 ## 🔐 Panel Docente (`/admin.html`)
 
@@ -84,7 +95,7 @@ firebase deploy --only firestore:rules --project hike-agentic-playground
    - Respuesta del FAQ sobre la fecha límite.
    - Link del grupo de WhatsApp: el `href` del botón "Unirme al grupo" (el QR se genera desde ese link).
    - Opcional: sumar proyectos destacados a la sección "Inspiración".
-4. **Probar local** (`npm run dev`) y pushear a `main`.
+4. **Probar local** (`npm run dev`), pushear a `main` y deployar (ver "Deploy").
 
 Al cambiar `COHORT_ID`, el portal y el admin muestran solo los registros del cuatrimestre nuevo. Los anteriores quedan intactos en Firestore; para verlos, volvé `COHORT_ID` al valor anterior en local. Las notas de los cuatrimestres nuevos se guardan en `studentNotes/{COHORT_ID}__{alumno}`.
 
