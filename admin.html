@@ -6,7 +6,6 @@
     <title>Admin · Taller IA Austral</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --bg: #f5f4f7;
@@ -457,15 +456,8 @@
                 </div>
                 <div class="scorecards" id="att-scorecards"></div>
                 <div class="filters" style="justify-content:space-between;align-items:center;">
-                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                        <button class="filter-btn active" data-class-filter="clase-1">Clase 1 · 5 May</button>
-                        <button class="filter-btn" data-class-filter="clase-2">Clase 2 · 12 May</button>
-                        <button class="filter-btn" data-class-filter="clase-3">Clase 3 · 19 May</button>
-                        <div class="filter-separator"></div>
-                        <button class="filter-btn active" data-com-filter="all">Todas</button>
-                        <button class="filter-btn" data-com-filter="14-16">14:00 – 16:00</button>
-                        <button class="filter-btn" data-com-filter="16-18">16:00 – 18:00</button>
-                    </div>
+                    <!-- Filtros por clase y comisión: generados desde src/cohort.js -->
+                    <div id="att-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
                     <button id="export-csv-btn" class="filter-btn" style="display:flex;align-items:center;gap:0.4rem;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Exportar CSV
@@ -489,11 +481,8 @@
                     <p>Todos los grupos que enviaron su entrega final</p>
                 </div>
                 <div class="scorecards" id="sub-scorecards"></div>
-                <div class="filters">
-                    <button class="filter-btn active" data-sub-com="all">Todas las comisiones</button>
-                    <button class="filter-btn" data-sub-com="14-16">14:00 – 16:00</button>
-                    <button class="filter-btn" data-sub-com="16-18">16:00 – 18:00</button>
-                </div>
+                <!-- Filtros por comisión: generados desde src/cohort.js -->
+                <div class="filters" id="sub-filters"></div>
                 <div class="sub-grid" id="sub-grid"></div>
             </div>
 
@@ -504,11 +493,8 @@
                     <p>Click en un alumno para ver su historial y agregar notas</p>
                 </div>
                 <div class="filters" style="margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                        <button class="filter-btn active" data-students-com="all">Todas</button>
-                        <button class="filter-btn" data-students-com="14-16">14:00 – 16:00</button>
-                        <button class="filter-btn" data-students-com="16-18">16:00 – 18:00</button>
-                    </div>
+                    <!-- Filtros por comisión: generados desde src/cohort.js -->
+                    <div id="students-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
                     <button id="export-grades-btn" class="filter-btn" style="display:flex; align-items:center; gap:0.4rem;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Exportar Notas

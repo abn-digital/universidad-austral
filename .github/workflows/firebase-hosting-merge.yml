@@ -9,9 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install and Build
-        run: npm install && npm run build
+        run: npm ci && npm run build
       - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
+        uses: w9jds/firebase-action@v15.31.0
         with:
           args: deploy --only hosting:universidad-austral
         env:

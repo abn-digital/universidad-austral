@@ -2,19 +2,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Asistencia — cualquier usuario autenticado (anónimo ok) puede leer y escribir
+    // Ojo: el deploy automático (GitHub Actions) solo sube Hosting. Para aplicar
+    // cambios en este archivo: firebase deploy --only firestore:rules
+
+    // Asistencia — cualquier usuario autenticado (anónimo ok) puede leer y registrar.
+    // La app nunca modifica ni borra una asistencia ya registrada.
     match /attendance/{docId} {
-      allow read, write: if request.auth != null;
+      allow read, create: if request.auth != null;
     }
 
-    // Entregas de proyectos
+    // Entregas de proyectos (el grupo crea y edita; el admin pone la nota). Sin borrado.
     match /submissions/{docId} {
-      allow read, write: if request.auth != null;
+      allow read, create, update: if request.auth != null;
     }
 
-    // Notas por alumno (solo escritas desde el panel admin)
+    // Notas por alumno (solo escritas desde el panel admin). Sin borrado.
     match /studentNotes/{docId} {
-      allow read, write: if request.auth != null;
+      allow read, create, update: if request.auth != null;
     }
   }
 }

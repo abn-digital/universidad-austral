@@ -9,62 +9,13 @@ import {
     getDocs,
     updateDoc,
     doc,
-    serverTimestamp 
+    serverTimestamp,
+    arrayUnion
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
-// Data de Alumnos - Taller de IA Austral Q1 2026
-const studentData = {
-    "14-16": [
-        { name: "Valentina Angeleri", email: "vangeleri@mail.austral.edu.ar" },
-        { name: "Mateo Beumont", email: "mbeumont@mail.austral.edu.ar" },
-        { name: "Francisco Bruzone", email: "fbruzone@mail.austral.edu.ar" },
-        { name: "Benjamin Burgo", email: "bburgo@mail.austral.edu.ar" },
-        { name: "Mora Cier", email: "mcier@mail.austral.edu.ar" },
-        { name: "Pedro Deluchi", email: "pdeluchi@mail.austral.edu.ar" },
-        { name: "Camila María de Salas", email: "cmdesalas@mail.austral.edu.ar" },
-        { name: "Iñaki Dominguez", email: "idominguez2@mail.austral.edu.ar" },
-        { name: "Ignacio Domnanovich", email: "idomnanovich@mail.austral.edu.ar" },
-        { name: "Juan Ignacio Fabbro", email: "jfabbro@mail.austral.edu.ar" },
-        { name: "Milagros Fernandez", email: "mfernandez27@mail.austral.edu.ar" },
-        { name: "Renata Lucía Fernández", email: "rlfernandez@mail.austral.edu.ar" },
-        { name: "Ignacio Gomez Galissier", email: "igomezgalissier@mail.austral.edu.ar" },
-        { name: "Joaquin Albano Harguindeguy", email: "jaharguindeguy@mail.austral.edu.ar" },
-        { name: "Lucas Leonard", email: "lleonard@mail.austral.edu.ar" },
-        { name: "Trinidad Leonard", email: "tleonard@mail.austral.edu.ar" },
-        { name: "Mateo Josue Leonov", email: "mjleonov@mail.austral.edu.ar" },
-        { name: "Santiago Martinez Alvarez", email: "smartinezalvarez@mail.austral.edu.ar" },
-        { name: "Lourdes Massuh", email: "lmassuh@mail.austral.edu.ar" },
-        { name: "Benjamin Merhar", email: "bmerhar@mail.austral.edu.ar" },
-        { name: "Camila Nemes Meier", email: "cmeier@mail.austral.edu.ar" },
-        { name: "Augusto Piepenbrink", email: "apiepenbrink@mail.austral.edu.ar" },
-        { name: "Josefina Sfilio Glassmann", email: "jsfilioglassmann@mail.austral.edu.ar" },
-        { name: "Martina Soto", email: "msoto3@mail.austral.edu.ar" },
-        { name: "Nicolas Martin Torres", email: "nmtorres@mail.austral.edu.ar" },
-        { name: "Bauti Ballatore", email: "bballatore@mail.austral.edu.ar" }
-    ],
-    "16-18": [
-        { name: "Mateo Ignacio Aldazabal", email: "maldazabal@mail.austral.edu.ar" },
-        { name: "Bernardino de Aldecoa", email: "bdealdecoa@mail.austral.edu.ar" },
-        { name: "Valentin Del Pino", email: "vdelpino@mail.austral.edu.ar" },
-        { name: "Guadalupe Fernandez Garcia", email: "gfernandezgarcia@mail.austral.edu.ar" },
-        { name: "Facundo Leon García Lorenzi", email: "flgarcialorenzi@mail.austral.edu.ar" },
-        { name: "Juan Ignacio Gomez Cruz", email: "jigomezcruz@mail.austral.edu.ar" },
-        { name: "Eliseo Juan Laborde", email: "elaborde1@mail.austral.edu.ar" },
-        { name: "Juan Cruz López", email: "jclopez@mail.austral.edu.ar" },
-        { name: "Trinidad Maydana", email: "tmaydana@mail.austral.edu.ar" },
-        { name: "Ignacio Luca Montovio", email: "ilmontovio@mail.austral.edu.ar" },
-        { name: "Tiziano Rossignuolo", email: "trossignuolo@mail.austral.edu.ar" },
-        { name: "Miguel Agustin Rozas", email: "marozas@mail.austral.edu.ar" },
-        { name: "Salvador Sanchez Pujol", email: "ssanchezpujol@mail.austral.edu.ar" },
-        { name: "Abril Santeusanio", email: "asanteusanio@mail.austral.edu.ar" },
-        { name: "Ana Sixto", email: "asixto@mail.austral.edu.ar" },
-        { name: "Jose Maria Solanet Zimmermann", email: "jmsolanet@mail.austral.edu.ar" },
-        { name: "Renata Staffolani", email: "rstaffolani@mail.austral.edu.ar" },
-        { name: "Lucila Tomys de Mello", email: "ltomysdemello@mail.austral.edu.ar" }
-    ]
-};
+import { COHORT_ID, DEADLINE, APPS_SCRIPT_URL, CLASSES, COMISIONES, studentData, belongsToCohort } from './cohort.js';
+import { escapeHtml, safeUrl } from './html.js';
 
 // ─── Toast Notification ───
 function showToast(message, duration = 4000) {
@@ -88,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentAttendance = [];
     let currentSubmissions = [];
     let editingSubmissionId = null; // Track if we are updating an existing entry
+
+    // ─── Opciones de comisión y clase (desde cohort.js) ───
+    function fillOptions(select, items) {
+        items.forEach(({ value, label }) => select.add(new Option(label, value)));
+    }
+    const comisionOptions = COMISIONES.map(c => ({ value: c.key, label: c.label }));
+    fillOptions(comisionSelect, comisionOptions);
+    fillOptions(document.getElementById('att-comision'), comisionOptions);
+    fillOptions(document.getElementById('att-clase'), CLASSES.map(c => ({ value: c.key, label: c.formLabel })));
 
     // ─── Scroll Reveal Animations ───
     const revealElements = document.querySelectorAll('.reveal');
@@ -126,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ─── Countdown ───
-    const DEADLINE = new Date('2026-05-26T14:00:00-03:00');
     function updateCountdown() {
+        if (!DEADLINE) return; // Fecha a definir: el countdown queda en "--"
         const now = new Date();
         const diff = DEADLINE - now;
         if (diff <= 0) {
@@ -179,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const sizeMB = (file.size / 1024 / 1024).toFixed(2);
             const li = document.createElement('li');
             li.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border-radius:6px;margin-bottom:0.4rem;font-size:0.82rem;';
-            li.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${file.name}</span><span style="color:var(--text-dim);font-size:0.75rem;white-space:nowrap;">${sizeMB} MB</span>`;
+            li.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(file.name)}</span><span style="color:var(--text-dim);font-size:0.75rem;white-space:nowrap;">${sizeMB} MB</span>`;
             fileList.appendChild(li);
         });
     }
@@ -285,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         const btn = form.querySelector('button[type="submit"]');
-        const originalText = btn.innerHTML;
         btn.innerHTML = 'Enviando proyecto...';
         btn.disabled = true;
 
@@ -307,9 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
             timestamp: serverTimestamp()
         };
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
-
         try {
+            // Un código repetido haría que "Editar Entrega" traiga la entrega de otro grupo
+            if (await isEditCodeTaken(payload.searchCode, editingSubmissionId)) {
+                showToast('Ese código de seguridad ya lo usa otro grupo. Elegí otro.');
+                return;
+            }
+
             // 1. Subir archivos a Firebase Storage
             btn.innerHTML = 'Subiendo archivos...';
             const adjuntosFiles = document.getElementById('adjuntos').files;
@@ -328,23 +291,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. Guardar en Firestore con URLs de archivos
             btn.innerHTML = 'Guardando entrega...';
             if (editingSubmissionId) {
-                // Actualizar existente
+                // Actualizar existente. Se conserva el timestamp original (define si la
+                // entrega fue a tiempo) y los archivos nuevos se suman a los anteriores.
+                const { timestamp, ...changes } = payload;
                 await updateDoc(doc(db, 'submissions', editingSubmissionId), {
-                    ...payload,
-                    adjuntos: adjuntosURLs.length > 0 ? adjuntosURLs : (payload.adjuntos || []) // Mantener viejos si no subió nuevos
+                    ...changes,
+                    updatedAt: serverTimestamp(),
+                    ...(adjuntosURLs.length > 0 && { adjuntos: arrayUnion(...adjuntosURLs) })
                 });
                 showToast(`Entrega actualizada correctamente.`);
             } else {
                 // Nueva entrega
                 await addDoc(collection(db, 'submissions'), {
                     ...payload,
+                    cohorte: COHORT_ID,
                     adjuntos: adjuntosURLs
                 });
                 showToast(`Entrega recibida. ¡Éxitos en el taller!`);
             }
 
             // 3. Backup en Google Sheets
-            fetch(scriptURL, {
+            fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ ...payload, type: 'proyecto', timestamp: new Date().toISOString() })
@@ -352,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             form.reset();
             editingSubmissionId = null;
-            document.getElementById('submit-delivery-btn').innerHTML = 'Enviar Entrega Grupal ↗';
             document.getElementById('edit-files-info').style.display = 'none';
             document.getElementById('edit-files-list').innerHTML = '';
             integrantesContainer.innerHTML = '';
@@ -363,10 +329,19 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Firebase Error:', err);
             showToast(`Error: ${err.message || 'Intentá de nuevo'}`);
         } finally {
-            btn.innerHTML = originalText;
+            btn.innerHTML = editingSubmissionId ? 'Actualizar Entrega ↗' : 'Enviar Entrega Grupal ↗';
             btn.disabled = false;
         }
     });
+
+    async function isEditCodeTaken(searchCode, ownId) {
+        const snap = await getDocs(query(collection(db, 'submissions'), where('searchCode', '==', searchCode)));
+        if (snap.docs.some(d => d.id !== ownId && belongsToCohort(d.data()))) return true;
+        // Entregas viejas sin searchCode: se comparan contra la lista ya cargada
+        return currentSubmissions.some(s =>
+            s.id !== ownId && !s.searchCode && (s.editCode || '').toLowerCase().trim() === searchCode
+        );
+    }
 
     // ─── Search & Edit Submission Modal ───
     const searchBtn = document.getElementById('search-delivery-btn');
@@ -402,30 +377,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 collection(db, 'submissions'),
                 where('searchCode', '==', searchCode)
             );
-            let querySnapshot = await getDocs(q);
+            let matches = (await getDocs(q)).docs.filter(d => belongsToCohort(d.data()));
 
             // Fallback para entregas viejas que no tienen searchCode
-            if (querySnapshot.empty) {
+            if (matches.length === 0) {
                 q = query(
                     collection(db, 'submissions'),
                     where('editCode', '==', rawCode)
                 );
-                querySnapshot = await getDocs(q);
+                matches = (await getDocs(q)).docs.filter(d => belongsToCohort(d.data()));
             }
 
-            if (querySnapshot.empty) {
+            if (matches.length === 0) {
                 showToast('No se encontró ninguna entrega con ese código.');
                 confirmEditBtn.innerHTML = 'Buscar mi Entrega ↗';
                 confirmEditBtn.disabled = false;
                 return;
             }
 
-            const docSnap = querySnapshot.docs[0];
+            const docSnap = matches[0];
             const data = docSnap.data();
             editingSubmissionId = docSnap.id;
 
             // Cargar datos en el formulario
-            comisionSelect.value = data.comision || '14-16';
+            comisionSelect.value = data.comision || COMISIONES[0].key;
             document.getElementById('empresa').value = data.empresa || '';
             document.getElementById('comentarios').value = data.comments || '';
             if (document.getElementById('edit-code')) {
@@ -460,9 +435,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const filesList = document.getElementById('edit-files-list');
             if (data.adjuntos && data.adjuntos.length > 0) {
                 filesInfo.style.display = 'block';
-                filesList.innerHTML = data.adjuntos.map(a => 
-                    `<li style="margin-bottom: 0.3rem;">• <a href="${a.url}" target="_blank" style="color:var(--accent-dark);text-decoration:underline;">${a.nombre}</a></li>`
-                ).join('');
+                filesList.innerHTML = data.adjuntos.map(a => {
+                    const url = safeUrl(a.url);
+                    const nombre = escapeHtml(a.nombre);
+                    return `<li style="margin-bottom: 0.3rem;">• ${url ? `<a href="${escapeHtml(url)}" target="_blank" style="color:var(--accent-dark);text-decoration:underline;">${nombre}</a>` : nombre}</li>`;
+                }).join('');
             } else {
                 filesInfo.style.display = 'none';
             }
@@ -481,88 +458,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ─── Admin Access (with animated modal) ───
-    const adminModal = document.getElementById('admin-modal');
-    const adminClose = document.getElementById('admin-close');
-
-    function openModal() {
-        adminModal.style.display = 'flex';
-        requestAnimationFrame(() => adminModal.classList.add('open'));
-        renderAdminPanel();
-    }
-    function closeModal() {
-        adminModal.classList.remove('open');
-        setTimeout(() => { adminModal.style.display = 'none'; }, 280);
-    }
-
+    // ─── Admin ───
+    // El panel de administración vive en /admin.html
     adminTrigger.addEventListener('click', () => {
-        const pass = prompt('Contraseña de administrador:');
-        if (pass === 'hike2026') openModal();
-    });
-    adminClose.addEventListener('click', closeModal);
-    adminModal.addEventListener('click', e => { if (e.target === adminModal) closeModal(); });
-
-    // Export CSV
-    document.getElementById('export-csv-btn').addEventListener('click', () => {
-        const clase = document.querySelector('.admin-class-btn.active')?.dataset.class || 'clase-1';
-        const allStudents = [...(studentData['14-16'] || []), ...(studentData['16-18'] || [])];
-        const records = currentAttendance.filter(a => a.clase === clase);
-        const rows = [['Nombre', 'Comisión', 'Estado', 'Timestamp']];
-        allStudents.forEach(s => {
-            const rec = records.find(a => a.nombre === s.name);
-            const com = rec?.comision || (studentData['14-16'].find(x => x.name === s.name) ? '14-16' : '16-18');
-            const ts = rec?.timestamp?.toDate ? rec.timestamp.toDate().toLocaleString('es-AR') : rec?.timestamp ? new Date(rec.timestamp).toLocaleString('es-AR') : '';
-            rows.push([s.name, com, rec ? 'Presente' : 'Ausente', ts]);
-        });
-        const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `asistencia_${clase}.csv`; a.click();
-        URL.revokeObjectURL(url);
-    });
-
-
-    // Modal tabs
-    document.querySelectorAll('.modal-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.tab).classList.add('active');
-        });
-    });
-
-    // Estado activo de la vista admin
-    let activeClass = 'clase-1';
-    let activeComision = 'all';
-
-    // Admin class tabs (por clase)
-    document.querySelectorAll('.admin-class-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.admin-class-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            activeClass = btn.dataset.class;
-            renderAttendanceList(activeClass, activeComision);
-        });
-    });
-
-    // Admin commission tabs (por comisión)
-    document.querySelectorAll('.admin-com-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.admin-com-btn').forEach(b => {
-                b.style.background = 'transparent';
-                b.style.color = 'var(--text-dim)';
-                b.style.borderColor = 'var(--border)';
-                b.classList.remove('active');
-            });
-            btn.classList.add('active');
-            btn.style.background = 'var(--accent-dark)';
-            btn.style.color = '#fff';
-            btn.style.borderColor = 'var(--accent-dark)';
-            activeComision = btn.dataset.com;
-            renderAttendanceList(activeClass, activeComision);
-        });
+        window.location.href = '/admin.html';
     });
 
     // --- AUTH & INITIALIZATION ---
@@ -578,126 +477,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Asistencias y entregas del cuatrimestre, para el mini-dashboard del alumno
     function initFirestoreListeners() {
         const qAttendance = query(collection(db, 'attendance'), orderBy('timestamp', 'desc'));
         onSnapshot(qAttendance, (snapshot) => {
-            currentAttendance = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const activeTab = document.querySelector('.admin-class-btn.active');
-            if (activeTab) renderAttendanceList(activeTab.dataset.class);
+            currentAttendance = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(belongsToCohort);
+            updatePersonalDashboard();
         });
 
         const qSubmissions = query(collection(db, 'submissions'), orderBy('timestamp', 'desc'));
         onSnapshot(qSubmissions, (snapshot) => {
-            currentSubmissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderSubmissionsList();
+            currentSubmissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(belongsToCohort);
+            updatePersonalDashboard();
         });
     }
-
-    function renderAttendanceList(clase, comision = 'all') {
-        const list = document.getElementById('admin-attendance-list');
-
-        // Filtrar alumnos por comisión seleccionada
-        let allStudents;
-        if (comision === '14-16') {
-            allStudents = studentData['14-16'] || [];
-        } else if (comision === '16-18') {
-            allStudents = studentData['16-18'] || [];
-        } else {
-            allStudents = [...(studentData['14-16'] || []), ...(studentData['16-18'] || [])];
-        }
-
-        // Filtrar registros de asistencia por clase (y comisión si aplica)
-        const presentRecords = currentAttendance.filter(a => {
-            const matchClase = a.clase === clase;
-            const matchComision = comision === 'all' || a.comision === comision;
-            return matchClase && matchComision;
-        });
-        const presentNames = presentRecords.map(a => a.nombre);
-
-        const present = allStudents.filter(s => presentNames.includes(s.name));
-        const absent  = allStudents.filter(s => !presentNames.includes(s.name));
-
-        list.innerHTML = `<p class="admin-counter">${present.length} presentes / ${allStudents.length} totales</p>`;
-
-        present.forEach(s => {
-            const record = presentRecords.find(a => a.nombre === s.name);
-            const ts = record?.timestamp?.toDate ? record.timestamp.toDate() : new Date(record?.timestamp);
-            list.innerHTML += `<div class="admin-row">
-                <span class="admin-row-name">${s.name}</span>
-                <div style="display:flex;gap:0.5rem;align-items:center;">
-                    <span class="admin-row-meta">${record?.timestamp ? ts.toLocaleString('es-AR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Sincronizando...'}</span>
-                    <span class="admin-badge admin-badge--present">Presente</span>
-                </div>
-            </div>`;
-        });
-        absent.forEach(s => {
-            list.innerHTML += `<div class="admin-row">
-                <span class="admin-row-name" style="color:var(--text-dim)">${s.name}</span>
-                <span class="admin-badge admin-badge--absent">Ausente</span>
-            </div>`;
-        });
-    }
-
-    function renderSubmissionsList() {
-        const list = document.getElementById('admin-submissions-list');
-
-        if (currentSubmissions.length === 0) {
-            list.innerHTML = '<p class="admin-empty">No hay entregas registradas todavía.</p>';
-            return;
-        }
-
-        list.innerHTML = `<p class="admin-counter">${currentSubmissions.length} entrega${currentSubmissions.length > 1 ? 's' : ''} recibida${currentSubmissions.length > 1 ? 's' : ''}</p>`;
-
-        currentSubmissions.forEach(s => {
-            const ts = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
-            const fechaStr = s.timestamp ? ts.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
-
-            const linksHTML = (s.links || []).filter(l => l).map(l =>
-                `<a href="${l}" target="_blank" rel="noopener" style="display:block;color:var(--accent-dark);font-size:0.8rem;word-break:break-all;margin-bottom:0.2rem;text-decoration:underline;">${l}</a>`
-            ).join('') || '<span style="color:var(--text-dim);font-size:0.8rem;">Sin links</span>';
-
-            const integrantesHTML = (s.integrantes || []).map(i =>
-                `<span style="display:inline-block;background:rgba(88,56,163,0.12);color:var(--accent-dark);border-radius:999px;padding:0.15rem 0.6rem;font-size:0.75rem;margin:0.15rem 0.1rem;">${i.nombre}</span>`
-            ).join('');
-
-            list.innerHTML += `
-            <div style="border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
-                    <div>
-                        <span class="admin-row-name" style="font-size:1rem;">${s.empresa || 'Sin nombre'}</span>
-                        <span class="admin-row-meta" style="display:block;margin-top:0.2rem;">${s.comision || '—'} · ${fechaStr} ${s.editCode ? `· 🔑 ${s.editCode}` : ''}</span>
-                    </div>
-                    <span class="admin-badge admin-badge--submitted">Entregado</span>
-                </div>
-                <div style="margin-bottom:0.6rem;">
-                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Equipo</span>
-                    <div style="margin-top:0.3rem;">${integrantesHTML}</div>
-                </div>
-                <div style="margin-bottom:0.6rem;">
-                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Links del Proyecto</span>
-                    <div style="margin-top:0.3rem;">${linksHTML}</div>
-                </div>
-                ${s.comments ? `
-                <div style="margin-bottom:0.4rem;">
-                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Proceso & Herramientas</span>
-                    <p style="margin-top:0.3rem;font-size:0.82rem;color:var(--text-dim);line-height:1.5;">${s.comments}</p>
-                </div>` : ''}
-                ${s.adjuntos && s.adjuntos.length > 0 ? `
-                <div>
-                    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;">Archivos Adjuntos</span>
-                    <div style="margin-top:0.3rem;">
-                        ${s.adjuntos.map(a => `
-                            <a href="${a.url}" target="_blank" rel="noopener"
-                               style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(88,56,163,0.1);color:var(--accent-dark);border-radius:6px;padding:0.25rem 0.6rem;font-size:0.78rem;text-decoration:none;margin:0.2rem 0.15rem;">
-                               <i data-lucide="paperclip" style="width:14px;height:14px;"></i> ${a.nombre}
-                            </a>`).join('')}
-                    </div>
-                </div>` : ''}
-            </div>`;
-        });
-    }
-
-    // (Se eliminó el backup de localStorage para favorecer Firestore)
 
     // ─── Attendance Form ───
     const attForm = document.getElementById('attendance-form');
@@ -729,12 +522,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstName = nombre.split(' ')[0];
         greeting.textContent = `Hola, ${firstName}`;
 
-        // Asistencia: check all 3 classes
-        const attClases = ['clase-1', 'clase-2', 'clase-3'].filter(c =>
-            currentAttendance.some(a => a.nombre === nombre && a.clase === c)
+        // Asistencia: check all classes
+        const attClases = CLASSES.filter(c =>
+            currentAttendance.some(a => a.nombre === nombre && a.clase === c.key)
         );
         dsAtt.className = 'dashboard-status-value ' + (attClases.length > 0 ? 'ds-ok' : 'ds-no');
-        dsAtt.textContent = attClases.length > 0 ? `${attClases.length}/3 clases` : 'Sin registros';
+        dsAtt.textContent = attClases.length > 0 ? `${attClases.length}/${CLASSES.length} clases` : 'Sin registros';
 
         // Entrega
         const hasSub = currentSubmissions.some(s =>
@@ -744,8 +537,11 @@ document.addEventListener('DOMContentLoaded', () => {
         dsSub.textContent = hasSub ? 'Entregado' : 'Pendiente';
 
         // Tiempo restante
-        const diff = DEADLINE - new Date();
-        if (diff > 0) {
+        const diff = DEADLINE ? DEADLINE - new Date() : null;
+        if (diff === null) {
+            dsTime.className = 'dashboard-status-value ds-dim';
+            dsTime.textContent = 'A definir';
+        } else if (diff > 0) {
             const d = Math.floor(diff / 86400000);
             const h = Math.floor((diff % 86400000) / 3600000);
             dsTime.className = 'dashboard-status-value ' + (d < 3 ? 'ds-no' : 'ds-dim');
@@ -777,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
+            if (querySnapshot.docs.some(d => belongsToCohort(d.data()))) {
                 showToast('Ya registraste asistencia para esta clase.');
                 submitBtn.textContent = 'Presente registrado';
                 submitBtn.disabled = true;
@@ -795,13 +591,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: serverTimestamp()
             };
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
-
             // 2. Guardar en Firestore
-            await addDoc(collection(db, 'attendance'), payload);
+            await addDoc(collection(db, 'attendance'), { ...payload, cohorte: COHORT_ID });
 
             // 3. Backup en Google Sheets
-            fetch(scriptURL, {
+            fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ ...payload, type: 'asistencia', timestamp: new Date().toISOString() })

@@ -36,7 +36,6 @@ body.dark .prompt-good { background: rgba(22,101,52,0.2); }
 body.dark .checklist-card { background: var(--surface); border-color: var(--border); }
 body.dark .check-item:hover { background: rgba(255,255,255,0.05); }
 body.dark .modal-card { background: var(--surface); }
-body.dark .modal-close:hover { background: rgba(255,255,255,0.08); }
 body.dark .fame-card { background: var(--surface); border-color: var(--border); }
 body.dark .dtag { background: rgba(196,168,240,0.15); }
 body.dark .form-card { background: var(--surface); border-color: var(--border); }
@@ -755,7 +754,7 @@ input:focus, select:focus, textarea:focus {
   accent-color: #991B1B;
 }
 
-/* ─── Admin Modal ─── */
+/* ─── Modal (editar entrega) ─── */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -787,108 +786,6 @@ input:focus, select:focus, textarea:focus {
 .modal-overlay.open .modal-card {
   transform: scale(1) translateY(0);
   opacity: 1;
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2.5rem 3rem 1.5rem;
-}
-.modal-header h3 { font-size: 1.2rem; }
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-dim);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s;
-}
-.modal-close:hover { background: #F0EDE9; }
-.modal-tabs {
-  display: flex;
-  gap: 0;
-  padding: 0 3rem;
-  border-bottom: 1px solid var(--border);
-}
-.modal-tab {
-  background: none;
-  border: none;
-  padding: 1rem 1.5rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-dim);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: 0.2s;
-}
-.modal-tab.active {
-  color: var(--accent-dark);
-  border-bottom-color: var(--accent-dark);
-}
-.modal-tab-content { display: none; padding: 2rem 3rem 3rem; }
-.modal-tab-content.active { display: block; }
-.admin-class-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-}
-.admin-class-btn {
-  background: #F0EDE9;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 99rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-  color: var(--text-dim);
-}
-.admin-class-btn.active {
-  background: var(--accent-dark);
-  color: white;
-}
-.admin-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.admin-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.9rem;
-}
-.admin-row:last-child { border-bottom: none; }
-.admin-row-name { font-weight: 600; }
-.admin-row-meta { color: var(--text-dim); font-size: 0.8rem; }
-.admin-badge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.3rem 0.7rem;
-  border-radius: 99rem;
-}
-.admin-badge--present { background: #DCFCE7; color: #166534; }
-.admin-badge--absent { background: #FEF2F2; color: #991B1B; }
-.admin-badge--submitted { background: #EEE9F8; color: var(--accent-dark); }
-.admin-empty {
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-dim);
-  font-size: 0.9rem;
-}
-.admin-counter {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  margin-bottom: 1.5rem;
-  font-weight: 600;
 }
 
 /* ─── Footer ─── */
@@ -1429,7 +1326,6 @@ input:focus, select:focus, textarea:focus {
   .attendance-card { padding: 3rem 2rem; gap: 2rem; }
   .attendance-body { grid-template-columns: 1fr; gap: 2rem; }
   .modal-card { margin: 1rem; }
-  .modal-header, .modal-tabs, .modal-tab-content { padding-left: 2rem; padding-right: 2rem; }
   .delivery-section { padding: 7rem 0; }
   .form-card { padding: 4rem 2rem; }
   .form-grid {
@@ -1456,4 +1352,5 @@ input:focus, select:focus, textarea:focus {
   .pillars-grid { grid-template-columns: 1fr; }
   .hero-cta .btn-primary { width: 100%; justify-content: center; }
   .delivery-header h2 { font-size: clamp(2.4rem, 8vw, 3.2rem); }
+  .toast { left: 1rem; right: 1rem; bottom: 1rem; padding: 1.2rem 1.6rem; font-size: 0.95rem; }
 }

@@ -4,72 +4,54 @@ import {
     doc, setDoc, serverTimestamp, arrayUnion
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { COHORT_ID, LEGACY_COHORT_ID, CLASSES, COMISIONES, belongsToCohort } from './cohort.js';
+import { escapeHtml, safeUrl } from './html.js';
 
 // ── Student data ──────────────────────────────────────────────
-const studentData = {
-    "14-16": [
-        { name: "Valentina Angeleri" }, { name: "Mateo Beumont" },
-        { name: "Francisco Bruzone" }, { name: "Benjamin Burgo" },
-        { name: "Mora Cier" }, { name: "Pedro Deluchi" },
-        { name: "Camila María de Salas" }, { name: "Iñaki Dominguez" },
-        { name: "Ignacio Domnanovich" }, { name: "Juan Ignacio Fabbro" },
-        { name: "Milagros Fernandez" }, { name: "Renata Lucía Fernández" },
-        { name: "Ignacio Gomez Galissier" }, { name: "Joaquin Albano Harguindeguy" },
-        { name: "Lucas Leonard" }, { name: "Trinidad Leonard" },
-        { name: "Mateo Josue Leonov" }, { name: "Santiago Martinez Alvarez" },
-        { name: "Lourdes Massuh" }, { name: "Benjamin Merhar" },
-        { name: "Camila Nemes Meier" }, { name: "Augusto Piepenbrink" },
-        { name: "Josefina Sfilio Glassmann" }, { name: "Martina Soto" },
-        { name: "Nicolas Martin Torres" }, { name: "Bauti Ballatore" }
-    ],
-    "16-18": [
-        { name: "Mateo Ignacio Aldazabal" }, { name: "Bernardino de Aldecoa" },
-        { name: "Valentin Del Pino" }, { name: "Guadalupe Fernandez Garcia" },
-        { name: "Facundo Leon García Lorenzi" }, { name: "Juan Ignacio Gomez Cruz" },
-        { name: "Eliseo Juan Laborde" }, { name: "Juan Cruz López" },
-        { name: "Trinidad Maydana" }, { name: "Ignacio Luca Montovio" },
-        { name: "Tiziano Rossignuolo" }, { name: "Miguel Agustin Rozas" },
-        { name: "Salvador Sanchez Pujol" }, { name: "Abril Santeusanio" },
-        { name: "Ana Sixto" }, { name: "Jose Maria Solanet Zimmermann" },
-        { name: "Renata Staffolani" }, { name: "Lucila Tomys de Mello" }
-    ]
-};
+// Alumnos de una comisión ('all' = todas), cada uno con su `com`
+function studentsOf(com) {
+    const comisiones = com === 'all' ? COMISIONES : COMISIONES.filter(c => c.key === com);
+    return comisiones.flatMap(c => c.students.map(s => ({ ...s, com: c.key })));
+}
 
-const CLASSES = [
-    { key: 'clase-1', label: 'Clase 1 · 5 May' },
-    { key: 'clase-2', label: 'Clase 2 · 12 May' },
-    { key: 'clase-3', label: 'Clase 3 · 19 May' },
-];
+function comisionOf(name) {
+    return COMISIONES.find(c => c.students.some(s => s.name === name))?.key;
+}
 
 // ── Helpers ───────────────────────────────────────────────────
 function studentKey(name) {
-    return name.toLowerCase().replace(/\s+/g, '_').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return name.toLowerCase().replace(/\s+/g, '_').normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+// ID del documento en `studentNotes`. Las notas del cuatrimestre original no llevan prefijo.
+function noteDocId(name) {
+    const key = studentKey(name);
+    return COHORT_ID === LEGACY_COHORT_ID ? key : `${COHORT_ID}__${key}`;
 }
 
 function getStudentGrade(studentName) {
-    const key = studentKey(studentName);
-    const individualGrade = studentNotes[key]?.grade || null;
-    
+    const individualGrade = studentNotes[noteDocId(studentName)]?.grade || null;
+
     // Find all submissions this student belongs to
-    const studentSubs = submissions.filter(sub => 
+    const studentSubs = submissions.filter(sub =>
         (sub.integrantes || []).some(i => i.nombre === studentName)
     );
-    
+
     // Collect all project grades
     const projectGrades = studentSubs
         .map(sub => sub.grade)
         .filter(g => typeof g === 'number');
-        
+
     if (projectGrades.length === 0) {
         return individualGrade;
     }
-    
+
     const bestProjectGrade = Math.max(...projectGrades);
-    
+
     if (individualGrade === null) {
         return bestProjectGrade;
     }
-    
+
     return Math.max(individualGrade, bestProjectGrade);
 }
 
@@ -89,16 +71,41 @@ function formatTimestamp(timestamp, includeEmpty = '—') {
     return date.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
+function downloadCsv(rows, filename) {
+    const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = filename;
+    a.click(); URL.revokeObjectURL(url);
+}
+
 // ── State ─────────────────────────────────────────────────────
 let attendance = [];
 let submissions = [];
-let studentNotes = {}; // { [studentKey]: { note, updatedAt } }
-let activeClass = 'clase-1';
+let studentNotes = {}; // { [noteDocId]: { grade, comments } }
+let activeClass = CLASSES[0].key;
 let activeCom = 'all';
 let activeSubCom = 'all';
 let activeStudentsCom = 'all';
 let openStudentName = null;
 let selectedGrade = null; // 1-10
+
+// ── Filter buttons (desde cohort.js) ──────────────────────────
+function filterButtons(attr, items, activeValue) {
+    return items.map(({ value, label }) =>
+        `<button class="filter-btn${value === activeValue ? ' active' : ''}" data-${attr}="${value}">${label}</button>`
+    ).join('');
+}
+const comisionFilters = COMISIONES.map(c => ({ value: c.key, label: c.shortLabel }));
+document.getElementById('att-filters').innerHTML =
+    filterButtons('class-filter', CLASSES.map(c => ({ value: c.key, label: c.label })), activeClass) +
+    '<div class="filter-separator"></div>' +
+    filterButtons('com-filter', [{ value: 'all', label: 'Todas' }, ...comisionFilters], activeCom);
+document.getElementById('sub-filters').innerHTML =
+    filterButtons('sub-com', [{ value: 'all', label: 'Todas las comisiones' }, ...comisionFilters], activeSubCom);
+document.getElementById('students-filters').innerHTML =
+    filterButtons('students-com', [{ value: 'all', label: 'Todas' }, ...comisionFilters], activeStudentsCom);
 
 // ── Login ─────────────────────────────────────────────────────
 const PASS = 'hike2026';
@@ -131,13 +138,13 @@ function initFirebase() {
         document.getElementById('sync-label').textContent = 'En vivo';
 
         onSnapshot(query(collection(db, 'attendance'), orderBy('timestamp', 'desc')), snap => {
-            attendance = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            attendance = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(belongsToCohort);
             renderAttendance();
             renderStudents();
             if (openStudentName) renderNotesDrawer(openStudentName);
         });
         onSnapshot(query(collection(db, 'submissions'), orderBy('timestamp', 'desc')), snap => {
-            submissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            submissions = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(belongsToCohort);
             renderSubmissions();
             renderStudents();
             if (openStudentName) renderNotesDrawer(openStudentName);
@@ -169,19 +176,20 @@ document.getElementById('sub-grid').addEventListener('change', async (e) => {
         const subId = e.target.dataset.subId;
         const gradeValue = e.target.value ? parseInt(e.target.value) : null;
         const statusEl = document.getElementById(`save-status-${subId}`);
-        
+
         try {
             await setDoc(doc(db, 'submissions', subId), {
                 grade: gradeValue,
                 gradeUpdatedAt: serverTimestamp()
             }, { merge: true });
-            
+
             if (statusEl) {
                 statusEl.style.display = 'inline';
                 setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
             }
         } catch (err) {
             console.error('Error saving project grade:', err);
+            alert('No se pudo guardar la nota del proyecto. Revisá la conexión y probá de nuevo.');
         }
     }
 });
@@ -257,10 +265,8 @@ document.querySelectorAll('[data-students-com]').forEach(btn => {
 
 // ── CSV Export ────────────────────────────────────────────────
 document.getElementById('export-csv-btn').addEventListener('click', () => {
-    const allStudents = [...studentData['14-16'], ...studentData['16-18']];
-    const rows = [['Nombre', 'Comisión', 'Clase 1', 'Clase 2', 'Clase 3', 'Entrega']];
-    allStudents.forEach(s => {
-        const com = studentData['14-16'].find(x => x.name === s.name) ? '14-16' : '16-18';
+    const rows = [['Nombre', 'Comisión', ...CLASSES.map((c, i) => `Clase ${i + 1}`), 'Entrega']];
+    studentsOf('all').forEach(s => {
         const cls = CLASSES.map(c => {
             const rec = attendance.find(a => a.nombre === s.name && a.clase === c.key);
             return rec ? 'Presente' : 'Ausente';
@@ -268,42 +274,27 @@ document.getElementById('export-csv-btn').addEventListener('click', () => {
         const hasSub = submissions.some(sub =>
             (sub.integrantes || []).some(i => i.nombre === s.name)
         );
-        rows.push([s.name, com, ...cls, hasSub ? 'Entregado' : 'Pendiente']);
+        rows.push([s.name, s.com, ...cls, hasSub ? 'Entregado' : 'Pendiente']);
     });
-    const csv = rows.map(r => r.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    a.download = `asistencia-austral-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click(); URL.revokeObjectURL(url);
+    downloadCsv(rows, `asistencia-austral-${new Date().toISOString().slice(0,10)}.csv`);
 });
 
 // ── CSV Export Grades ─────────────────────────────────────────
 document.getElementById('export-grades-btn').addEventListener('click', () => {
-    const allStudents = [
-        ...studentData['14-16'].map(s => ({ ...s, com: '14-16' })),
-        ...studentData['16-18'].map(s => ({ ...s, com: '16-18' }))
-    ];
+    const allStudents = studentsOf('all');
     allStudents.sort((a, b) => a.name.localeCompare(b.name));
-    
+
     const rows = [['Nombre', 'Comisión', 'Nota Final']];
     allStudents.forEach(s => {
         const grade = getStudentGrade(s.name);
         rows.push([s.name, s.com, grade !== null ? grade : '—']);
     });
-    const csv = rows.map(r => r.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    a.download = `notas-austral-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click(); URL.revokeObjectURL(url);
+    downloadCsv(rows, `notas-austral-${new Date().toISOString().slice(0,10)}.csv`);
 });
 
 // ── Render Attendance ─────────────────────────────────────────
 function renderAttendance() {
-    const allStudents = activeCom === '14-16' ? studentData['14-16']
-        : activeCom === '16-18' ? studentData['16-18']
-        : [...studentData['14-16'], ...studentData['16-18']];
+    const allStudents = studentsOf(activeCom);
 
     const records = attendance.filter(a => {
         const matchClass = a.clase === activeClass;
@@ -333,45 +324,37 @@ function renderAttendance() {
         </div>
     `;
 
-    const body = document.getElementById('att-table-body');
-    body.innerHTML = '';
-    allStudents.forEach(s => {
+    document.getElementById('att-table-body').innerHTML = allStudents.map(s => {
         const rec = records.find(a => a.nombre === s.name);
         const isPresent = !!rec;
-        const com = isPresent ? rec.comision : (studentData['14-16'].find(x => x.name === s.name) ? '14-16' : '16-18');
+        const com = isPresent ? rec.comision : s.com;
         const tsStr = formatTimestamp(rec?.timestamp, '—');
-        body.innerHTML += `
+        return `
         <div class="table-row">
             <span class="student-name">${s.name}</span>
-            <span class="ts-label">${com}</span>
+            <span class="ts-label">${escapeHtml(com)}</span>
             <span class="ts-label">${tsStr}</span>
             <span class="badge ${isPresent ? 'badge-present' : 'badge-absent'}">${isPresent ? 'Presente' : 'Ausente'}</span>
         </div>`;
-    });
+    }).join('');
 }
 
 // ── Render Submissions ────────────────────────────────────────
 function renderSubmissions() {
     const filtered = activeSubCom === 'all' ? submissions : submissions.filter(s => s.comision === activeSubCom);
 
-    const total14 = submissions.filter(s => s.comision === '14-16').length;
-    const total16 = submissions.filter(s => s.comision === '16-18').length;
     document.getElementById('sub-scorecards').innerHTML = `
         <div class="scorecard">
             <div class="scorecard-label">Total Entregas</div>
             <div class="scorecard-value">${submissions.length}</div>
             <div class="scorecard-sub">grupos en total</div>
         </div>
+        ${COMISIONES.map(c => `
         <div class="scorecard">
-            <div class="scorecard-label">Comisión 14-16</div>
-            <div class="scorecard-value">${total14}</div>
+            <div class="scorecard-label">Comisión ${c.key}</div>
+            <div class="scorecard-value">${submissions.filter(s => s.comision === c.key).length}</div>
             <div class="scorecard-sub">entregas recibidas</div>
-        </div>
-        <div class="scorecard">
-            <div class="scorecard-label">Comisión 16-18</div>
-            <div class="scorecard-value">${total16}</div>
-            <div class="scorecard-sub">entregas recibidas</div>
-        </div>
+        </div>`).join('')}
     `;
 
     const grid = document.getElementById('sub-grid');
@@ -379,36 +362,42 @@ function renderSubmissions() {
         grid.innerHTML = '<p class="empty">No hay entregas registradas todavía.</p>';
         return;
     }
-    grid.innerHTML = '';
-    filtered.forEach(s => {
+    grid.innerHTML = filtered.map(s => {
         const fecha = formatTimestamp(s.timestamp, '—');
+        const editada = s.updatedAt ? ` · editada ${formatTimestamp(s.updatedAt, '')}` : '';
+        const codigo = s.editCode ? ` · 🔑 ${escapeHtml(s.editCode)}` : '';
 
-        const linksHTML = (s.links || []).filter(l => l).map(l =>
-            `<a href="${l}" target="_blank" class="link-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>${l}
-            </a>`).join('') || '<span style="color:#999;font-size:0.8rem;">Sin links</span>';
+        const linksHTML = (s.links || []).filter(l => l).map(l => {
+            const url = safeUrl(l);
+            if (!url) return `<span class="link-item">${escapeHtml(l)}</span>`;
+            return `<a href="${escapeHtml(url)}" target="_blank" class="link-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>${escapeHtml(l)}
+            </a>`;
+        }).join('') || '<span style="color:#999;font-size:0.8rem;">Sin links</span>';
 
-        const chips = (s.integrantes || []).map(i => `<span class="chip">${i.nombre}</span>`).join('');
+        const chips = (s.integrantes || []).map(i => `<span class="chip">${escapeHtml(i.nombre)}</span>`).join('');
 
         const filesHTML = (s.adjuntos || [])
-            .filter(a => a && typeof a.nombre === 'string' && a.url)
+            .filter(a => a && typeof a.nombre === 'string' && safeUrl(a.url))
             .map(a => {
+                const url = escapeHtml(safeUrl(a.url));
+                const nombre = escapeHtml(a.nombre);
                 const isImage = /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(a.nombre);
                 return `
-                    <a href="${a.url}" target="_blank" class="file-chip">
+                    <a href="${url}" target="_blank" class="file-chip">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                        ${a.nombre}
+                        ${nombre}
                     </a>
-                    ${isImage ? `<img src="${a.url}" class="img-preview" alt="${a.nombre}" />` : ''}
+                    ${isImage ? `<img src="${url}" class="img-preview" alt="${nombre}" />` : ''}
                 `;
             }).join('');
 
-        grid.innerHTML += `
+        return `
         <div class="sub-card">
             <div class="sub-card-header">
                 <div>
-                    <div class="sub-empresa">${s.empresa || 'Sin nombre'}</div>
-                    <div class="sub-meta">${s.comision || '—'} · ${fecha}</div>
+                    <div class="sub-empresa">${escapeHtml(s.empresa || 'Sin nombre')}</div>
+                    <div class="sub-meta">${escapeHtml(s.comision || '—')} · ${fecha}${editada}${codigo}</div>
                 </div>
                 <span class="badge badge-submitted">Entregado</span>
             </div>
@@ -417,7 +406,7 @@ function renderSubmissions() {
             <div class="sub-section-label">Links del Proyecto</div>
             ${linksHTML}
             ${s.comments ? `<div class="sub-section-label">Proceso & Herramientas</div>
-            <p style="font-size:0.82rem;color:#6b6080;line-height:1.55;">${s.comments}</p>` : ''}
+            <p style="font-size:0.82rem;color:#6b6080;line-height:1.55;">${escapeHtml(s.comments)}</p>` : ''}
             ${filesHTML ? `<div class="sub-section-label">Archivos</div>${filesHTML}` : ''}
             <div class="sub-section-label">Calificación del Proyecto</div>
             <div style="display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;">
@@ -428,23 +417,17 @@ function renderSubmissions() {
                 <span class="project-save-status" id="save-status-${s.id}" style="font-size:0.75rem; color:var(--present); font-weight:600; display:none;">✓ Guardado</span>
             </div>
         </div>`;
-    });
+    }).join('');
 }
 
 // ── Render Students Grid ──────────────────────────────────────
 function renderStudents() {
-    const allStudents = activeStudentsCom === '14-16' ? studentData['14-16'].map(s => ({ ...s, com: '14-16' }))
-        : activeStudentsCom === '16-18' ? studentData['16-18'].map(s => ({ ...s, com: '16-18' }))
-        : [
-            ...studentData['14-16'].map(s => ({ ...s, com: '14-16' })),
-            ...studentData['16-18'].map(s => ({ ...s, com: '16-18' }))
-        ];
+    const allStudents = studentsOf(activeStudentsCom);
 
     const grid = document.getElementById('students-grid');
     grid.innerHTML = '';
     allStudents.forEach(s => {
-        const key = studentKey(s.name);
-        const noteData = studentNotes[key];
+        const noteData = studentNotes[noteDocId(s.name)];
         const hasNote = noteData?.note?.trim();
         const grade = getStudentGrade(s.name);
         const initials = s.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
@@ -486,7 +469,10 @@ function renderStudents() {
 
 function openStudentPanel(name) {
     openStudentName = name;
-    selectedGrade = null; // reset until loaded
+    // La nota y el comentario en edición se cargan solo al abrir el panel:
+    // los updates en vivo re-renderizan el panel y no deben pisarlos.
+    selectedGrade = studentNotes[noteDocId(name)]?.grade || null;
+    document.getElementById('notes-textarea').value = '';
     renderNotesDrawer(name);
     document.getElementById('notes-panel').classList.add('open');
 }
@@ -501,8 +487,8 @@ document.getElementById('notes-close').addEventListener('click', closeStudentPan
 document.getElementById('notes-backdrop').addEventListener('click', closeStudentPanel);
 
 function renderNotesDrawer(name) {
-    const key = studentKey(name);
-    const com = studentData['14-16'].find(x => x.name === name) ? '14-16' : '16-18';
+    const key = noteDocId(name);
+    const com = comisionOf(name);
     const initials = name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 
     document.getElementById('notes-student-name').textContent = name;
@@ -553,9 +539,14 @@ function renderNotesDrawer(name) {
         subBlock.innerHTML = `
             <div class="notes-section-title">Entrega de Proyecto</div>
             <div class="notes-class-item" style="flex-direction:column;align-items:flex-start;gap:0.4rem;">
-                <div style="font-weight:600;font-size:0.9rem;">${subGroup.empresa || 'Sin nombre'}</div>
-                ${teammates ? `<div style="font-size:0.75rem;color:#6b6080;">Con: ${teammates}</div>` : ''}
-                ${(subGroup.links || []).filter(l=>l).slice(0,2).map(l=>`<a href="${l}" target="_blank" style="font-size:0.75rem;color:#5838A3;word-break:break-all;">${l}</a>`).join('')}
+                <div style="font-weight:600;font-size:0.9rem;">${escapeHtml(subGroup.empresa || 'Sin nombre')}</div>
+                ${teammates ? `<div style="font-size:0.75rem;color:#6b6080;">Con: ${escapeHtml(teammates)}</div>` : ''}
+                ${(subGroup.links || []).filter(l=>l).slice(0,2).map(l => {
+                    const url = safeUrl(l);
+                    return url
+                        ? `<a href="${escapeHtml(url)}" target="_blank" style="font-size:0.75rem;color:#5838A3;word-break:break-all;">${escapeHtml(l)}</a>`
+                        : `<span style="font-size:0.75rem;word-break:break-all;">${escapeHtml(l)}</span>`;
+                }).join('')}
             </div>
         `;
     } else {
@@ -565,14 +556,13 @@ function renderNotesDrawer(name) {
         `;
     }
 
-    // Load grade
-    selectedGrade = studentNotes[key]?.grade || null;
+    // Grade picker (selectedGrade se carga al abrir el panel)
     updateGradePicker();
 
     // Render project grade info if any
     const gradeInfoEl = document.getElementById('notes-project-grade-info');
     if (gradeInfoEl) {
-        const studentSubs = submissions.filter(sub => 
+        const studentSubs = submissions.filter(sub =>
             (sub.integrantes || []).some(i => i.nombre === name)
         );
         const projectGrades = studentSubs
@@ -582,7 +572,7 @@ function renderNotesDrawer(name) {
         if (projectGrades.length > 0) {
             const bestProj = projectGrades.reduce((max, p) => p.grade > max.grade ? p : max, projectGrades[0]);
             const finalGrade = getStudentGrade(name);
-            
+
             gradeInfoEl.innerHTML = `
                 <div style="font-size:0.78rem; color:var(--text-dim); background:var(--surface2); padding:0.65rem 0.85rem; border-radius:8px; border:1px solid var(--border); line-height:1.4;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
@@ -590,7 +580,7 @@ function renderNotesDrawer(name) {
                         <strong>${bestProj.grade}/10</strong>
                     </div>
                     <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:0.4rem; font-style:italic;">
-                        Proyecto: "${bestProj.name}"${projectGrades.length > 1 ? ` (de ${projectGrades.length} proyectos)` : ''}
+                        Proyecto: "${escapeHtml(bestProj.name)}"${projectGrades.length > 1 ? ` (de ${projectGrades.length} proyectos)` : ''}
                     </div>
                     <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:0.4rem; font-weight:600; color:var(--accent);">
                         <span>Nota final:</span>
@@ -603,9 +593,6 @@ function renderNotesDrawer(name) {
         }
     }
 
-    // Clear textarea
-    document.getElementById('notes-textarea').value = '';
-
     // Render comment list
     const comments = studentNotes[key]?.comments || [];
     const commentsList = document.getElementById('notes-comments-list');
@@ -617,7 +604,7 @@ function renderNotesDrawer(name) {
         commentsList.innerHTML = sorted.map(c => {
             const d = c.createdAt ? new Date(c.createdAt) : null;
             const ts = d ? d.toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-            return `<div class="note-history-item">${c.text}<div class="note-history-ts">${ts}</div></div>`;
+            return `<div class="note-history-item">${escapeHtml(c.text)}<div class="note-history-ts">${ts}</div></div>`;
         }).join('');
     }
 }
@@ -625,7 +612,7 @@ function renderNotesDrawer(name) {
 // ── Save grade ────────────────────────────────────────────────
 document.getElementById('notes-save-grade-btn').addEventListener('click', async () => {
     if (!openStudentName) return;
-    const key = studentKey(openStudentName);
+    const key = noteDocId(openStudentName);
     const btn = document.getElementById('notes-save-grade-btn');
     const savedMsg = document.getElementById('notes-grade-saved-msg');
     btn.disabled = true;
@@ -639,6 +626,7 @@ document.getElementById('notes-save-grade-btn').addEventListener('click', async 
         setTimeout(() => savedMsg.classList.remove('show'), 2500);
     } catch (e) {
         console.error('Error saving grade:', e);
+        alert('No se pudo guardar la calificación. Revisá la conexión y probá de nuevo.');
     } finally {
         btn.disabled = false;
     }
@@ -647,7 +635,7 @@ document.getElementById('notes-save-grade-btn').addEventListener('click', async 
 // ── Add comment ───────────────────────────────────────────────
 document.getElementById('notes-add-comment-btn').addEventListener('click', async () => {
     if (!openStudentName) return;
-    const key = studentKey(openStudentName);
+    const key = noteDocId(openStudentName);
     const text = document.getElementById('notes-textarea').value.trim();
     if (!text) return;
     const btn = document.getElementById('notes-add-comment-btn');
@@ -663,6 +651,7 @@ document.getElementById('notes-add-comment-btn').addEventListener('click', async
         setTimeout(() => savedMsg.classList.remove('show'), 2500);
     } catch (e) {
         console.error('Error adding comment:', e);
+        alert('No se pudo agregar el comentario. Revisá la conexión y probá de nuevo.');
     } finally {
         btn.disabled = false;
     }
