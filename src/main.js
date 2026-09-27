@@ -135,13 +135,27 @@ document.addEventListener('DOMContentLoaded', () => {
         fileUploadLabel.textContent = `${files.length} archivo${files.length > 1 ? 's' : ''} seleccionado${files.length > 1 ? 's' : ''}`;
         fileList.style.display = 'block';
         fileList.innerHTML = '';
-        Array.from(files).forEach(file => {
+        Array.from(files).forEach((file, index) => {
             const sizeMB = (file.size / 1024 / 1024).toFixed(2);
             const li = document.createElement('li');
             li.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border-radius:6px;margin-bottom:0.4rem;font-size:0.82rem;';
-            li.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(file.name)}</span><span style="color:var(--text-dim);font-size:0.75rem;white-space:nowrap;">${sizeMB} MB</span>`;
+            li.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(file.name)}</span><span style="color:var(--text-dim);font-size:0.75rem;white-space:nowrap;">${sizeMB} MB</span><button type="button" class="file-remove-btn" title="Quitar archivo" aria-label="Quitar ${escapeHtml(file.name)}">&times;</button>`;
+            li.querySelector('.file-remove-btn').addEventListener('click', () => removeSelectedFile(index));
             fileList.appendChild(li);
         });
+    }
+
+    // Quita un archivo elegido por error antes de entregar
+    function removeSelectedFile(index) {
+        const remaining = Array.from(adjuntosInput.files).filter((_, i) => i !== index);
+        try {
+            const dt = new DataTransfer();
+            remaining.forEach(f => dt.items.add(f));
+            adjuntosInput.files = dt.files;
+        } catch {
+            adjuntosInput.value = ''; // Navegador sin DataTransfer: se limpia la selección para volver a elegir
+        }
+        updateFileList(adjuntosInput.files);
     }
 
     adjuntosInput.addEventListener('change', () => updateFileList(adjuntosInput.files));
