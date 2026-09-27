@@ -25,7 +25,7 @@ src/
 ├── firebase.js     Inicialización del SDK
 ├── html.js         Helpers para escapar datos cargados por alumnos antes de mostrarlos
 └── index.css       Estilos del portal
-firestore.rules     Reglas de Firestore (se deployan a mano, ver "Deploy")
+firestore.rules     Referencia de las reglas de Firestore del portal (NO deployar, ver "Deploy")
 ```
 
 ## 🗄️ Datos (Firestore)
@@ -61,13 +61,21 @@ Hace falta estar logueado en el Firebase CLI con una cuenta que tenga acceso al 
 
 Para que cada push a `main` se deploye solo: crear una service account con rol "Firebase Hosting Admin" y cargar su JSON como secret `GCP_SA_KEY` en GitHub (el workflow ya lo lee).
 
-Las reglas de Firestore **no** se deployan con Hosting. Si cambiás `firestore.rules`:
+### ⚠️ Reglas de Firestore y Storage: el proyecto es compartido
 
-```bash
-firebase deploy --only firestore:rules --project hike-agentic-playground
-```
+`hike-agentic-playground` lo usan también otras apps (ABN Suite, entre otras). Sus reglas de Firestore y de Storage son **un solo archivo para todas las apps**: publicar reglas desde este repo borraría las de las demás. Por eso `firebase.json` solo configura Hosting y `firestore.rules` es solo una referencia.
 
-Ojo: eso reemplaza todas las reglas del proyecto. Antes, revisá en la consola las reglas publicadas (el proyecto puede tener otras apps).
+- **Firestore:** este portal usa `attendance`, `submissions` y `studentNotes` (ver `firestore.rules`). Para cambiarlas, editalas dentro de las reglas completas en la consola de Firebase.
+- **Storage:** los adjuntos de las entregas se suben a `submissions/`. Las reglas publicadas tienen que incluir este bloque:
+
+  ```
+  match /submissions/{allPaths=**} {
+    allow read: if request.auth != null;
+    allow create: if request.auth != null && request.resource.size < 100 * 1024 * 1024;
+  }
+  ```
+
+  En 2026 otra app publicó sus reglas de Storage sin este bloque y los adjuntos dejaron de funcionar hasta el 27/09. Si las entregas con archivos dan error de permisos, revisar esto primero.
 
 ## 🔐 Panel Docente (`/admin.html`)
 
@@ -105,7 +113,7 @@ Al cambiar `COHORT_ID`, el portal y el admin muestran solo los registros del cua
 
 - **Seguridad:** cualquier visitante (con Auth anónima) puede leer y escribir Firestore, incluidas notas y códigos de edición, y la contraseña del admin está en el JS público. La solución es login con Google para docentes y reglas que restrinjan notas y códigos a esas cuentas (requiere habilitar Google Sign-In en la consola de Firebase).
 - **Identidad por nombre:** asistencias, entregas y notas se vinculan por el nombre del alumno. Corregir un nombre en `cohort.js` lo desvincula de sus registros previos.
-- **Reglas de Storage:** no están versionadas en el repo; revisarlas en la consola de Firebase.
+- **Reglas compartidas:** si otra app del proyecto publica sus reglas de Storage o Firestore sin incluir las de este portal, los adjuntos o los registros dejan de funcionar (ver "Deploy").
 - **Dependencias:** `npm audit` reporta vulnerabilidades en dependencias de Firebase y Vite 5; actualizarlas requiere probar el sitio.
 
 ## 📝 Notas de Diseño
