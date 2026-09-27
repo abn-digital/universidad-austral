@@ -57,7 +57,8 @@ export const COMISIONES = [
             { name: "Marco Rigiroli", email: "mrigiroli@mail.austral.edu.ar" },
             { name: "Facundo Sanca", email: "fsanca@mail.austral.edu.ar" },
             { name: "Bautista Valles", email: "bvalles@mail.austral.edu.ar" },
-            { name: "Nicolas Verschoor", email: "nverschoor@mail.austral.edu.ar" }
+            { name: "Nicolas Verschoor", email: "nverschoor@mail.austral.edu.ar" },
+            { name: "Hike", email: "" } // Alumno de prueba para el equipo docente: sacarlo antes de la primera clase
         ],
     },
     {
