@@ -12,19 +12,17 @@ export const COHORT_ID = '2026-Q2';
 export const LEGACY_COHORT_ID = '2026-Q1';
 
 // Fecha límite de la entrega final (countdown y mini-dashboard del alumno).
-// Mientras sea null, el portal la muestra como "a definir".
-// Formato: new Date('2026-11-17T14:00:00-03:00')
-export const DEADLINE = null;
+// Si todavía no está definida, poné null y el portal la muestra como "a definir".
+export const DEADLINE = new Date('2026-10-20T14:00:00-03:00');
 
 // Google Apps Script que recibe una copia de cada entrega y asistencia.
 export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydzqBbLDLa6odKwxH0MVlbV00wIcd6foYxmhIPDWYzE_xkxL98Q6OeQYcBg7fMn50O/exec';
 
 // `label`: filtros y detalle del admin. `formLabel`: select de asistencia del portal.
-// Pendiente: sumar la fecha de cada clase (en el Q1 eran p. ej. 'Clase 1 · 5 May' y 'Clase 1 — Mar 5 Mayo').
 export const CLASSES = [
-    { key: 'clase-1', label: 'Clase 1', formLabel: 'Clase 1' },
-    { key: 'clase-2', label: 'Clase 2', formLabel: 'Clase 2' },
-    { key: 'clase-3', label: 'Clase 3', formLabel: 'Clase 3' },
+    { key: 'clase-1', label: 'Clase 1 · 29 Sep', formLabel: 'Clase 1 — Mar 29 Septiembre' },
+    { key: 'clase-2', label: 'Clase 2 · 6 Oct', formLabel: 'Clase 2 — Mar 6 Octubre' },
+    { key: 'clase-3', label: 'Clase 3 · 13 Oct', formLabel: 'Clase 3 — Mar 13 Octubre' },
 ];
 
 // `label`: selects del portal. `shortLabel`: filtros del admin.
@@ -33,8 +31,8 @@ export const CLASSES = [
 export const COMISIONES = [
     {
         key: 'A1',
-        label: 'Comisión 1 — Martes 29/9',
-        shortLabel: 'Comisión 1',
+        label: 'Comisión 1 — Martes 14:00 - 16:00',
+        shortLabel: 'Comisión 1 · 14:00 – 16:00',
         students: [
             { name: "Teodora Alegre", email: "talegre@mail.austral.edu.ar" },
             { name: "Eliseo Antonio Alvarez Brescia", email: "ealvarezbrescia@mail.austral.edu.ar" },
@@ -64,8 +62,8 @@ export const COMISIONES = [
     },
     {
         key: 'A2',
-        label: 'Comisión 2 — Martes 6/10',
-        shortLabel: 'Comisión 2',
+        label: 'Comisión 2 — Martes 16:00 - 18:00',
+        shortLabel: 'Comisión 2 · 16:00 – 18:00',
         students: [
             { name: "Cruz Pedro Bosch", email: "cpbosch@mail.austral.edu.ar" },
             { name: "Milagros Cejas", email: "mcejas@mail.austral.edu.ar" },
