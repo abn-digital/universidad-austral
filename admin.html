@@ -84,6 +84,25 @@
             padding: 0.2rem 0.5rem; border-radius: 999px;
             letter-spacing: 0.05em; text-transform: uppercase;
         }
+        .cohort-picker {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-left: 0.75rem; font-size: 0.78rem; color: var(--text-dim);
+        }
+        .cohort-picker select {
+            font-family: inherit; font-size: 0.82rem; font-weight: 600; color: var(--text);
+            background: white; border: 1px solid var(--border); border-radius: 6px;
+            padding: 0.3rem 0.5rem; cursor: pointer;
+        }
+        .past-cohort-banner {
+            display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
+            background: #FEF3C7; color: #92400E; border-bottom: 1px solid #FDE68A;
+            padding: 0.6rem 2rem; font-size: 0.82rem;
+        }
+        .past-cohort-banner[hidden] { display: none; }
+        .past-cohort-banner button {
+            font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+            background: white; color: #92400E; border: 1px solid #FCD34D; border-radius: 6px; padding: 0.25rem 0.6rem;
+        }
         .header-right { display: flex; align-items: center; gap: 1rem; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; display: inline-block; }
         .status-label { font-size: 0.8rem; color: var(--text-dim); }
@@ -412,6 +431,10 @@
         <div class="header-brand">
             <span>🎓 Admin · Taller IA Austral</span>
             <span class="header-badge">Live</span>
+            <label class="cohort-picker">
+                Cuatrimestre
+                <select id="cohort-select"></select>
+            </label>
         </div>
         <div class="header-right">
             <span class="status-dot"></span>
@@ -419,6 +442,10 @@
             <button class="logout-btn" id="logout-btn">Salir</button>
         </div>
     </header>
+    <div class="past-cohort-banner" id="past-cohort-banner" hidden>
+        <span>Estás viendo un cuatrimestre anterior (<strong id="past-cohort-label"></strong>). Las notas y comentarios que cargues acá se guardan en ese cuatrimestre.</span>
+        <button type="button" id="past-cohort-back">Volver al actual</button>
+    </div>
 
     <div class="main">
         <nav class="sidebar">

@@ -4,18 +4,34 @@ import {
     doc, setDoc, serverTimestamp, arrayUnion
 } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { COHORT_ID, LEGACY_COHORT_ID, CLASSES, COMISIONES, belongsToCohort } from './cohort.js';
+import { COHORT_ID, LEGACY_COHORT_ID, CLASSES, COMISIONES } from './cohort.js';
+import { PAST_COHORTS } from './cohorts-anteriores.js';
 import { escapeHtml, safeUrl } from './html.js';
+
+// ── Cuatrimestre que se está viendo ───────────────────────────
+// El primero es el actual (src/cohort.js); el resto, los anteriores.
+const COHORTS = [{ id: COHORT_ID, CLASSES, COMISIONES }, ...PAST_COHORTS];
+let cohort = COHORTS[0];
+
+function cohortLabel(id) {
+    const [year, q] = id.split('-');
+    return `${year} · ${q}`;
+}
+
+// Los registros sin campo `cohorte` son del cuatrimestre original
+function inCohort(record) {
+    return (record.cohorte || LEGACY_COHORT_ID) === cohort.id;
+}
 
 // ── Student data ──────────────────────────────────────────────
 // Alumnos de una comisión ('all' = todas), cada uno con su `com`
 function studentsOf(com) {
-    const comisiones = com === 'all' ? COMISIONES : COMISIONES.filter(c => c.key === com);
+    const comisiones = com === 'all' ? cohort.COMISIONES : cohort.COMISIONES.filter(c => c.key === com);
     return comisiones.flatMap(c => c.students.map(s => ({ ...s, com: c.key })));
 }
 
 function comisionOf(name) {
-    return COMISIONES.find(c => c.students.some(s => s.name === name))?.key;
+    return cohort.COMISIONES.find(c => c.students.some(s => s.name === name))?.key;
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -26,7 +42,7 @@ function studentKey(name) {
 // ID del documento en `studentNotes`. Las notas del cuatrimestre original no llevan prefijo.
 function noteDocId(name) {
     const key = studentKey(name);
-    return COHORT_ID === LEGACY_COHORT_ID ? key : `${COHORT_ID}__${key}`;
+    return cohort.id === LEGACY_COHORT_ID ? key : `${cohort.id}__${key}`;
 }
 
 function getStudentGrade(studentName) {
@@ -81,31 +97,65 @@ function downloadCsv(rows, filename) {
 }
 
 // ── State ─────────────────────────────────────────────────────
-let attendance = [];
+let allAttendance = [];   // todos los cuatrimestres
+let allSubmissions = [];
+let attendance = [];      // solo el cuatrimestre que se está viendo
 let submissions = [];
 let studentNotes = {}; // { [noteDocId]: { grade, comments } }
-let activeClass = CLASSES[0].key;
+let activeClass = cohort.CLASSES[0].key;
 let activeCom = 'all';
 let activeSubCom = 'all';
 let activeStudentsCom = 'all';
 let openStudentName = null;
 let selectedGrade = null; // 1-10
 
-// ── Filter buttons (desde cohort.js) ──────────────────────────
+function applyCohort() {
+    attendance = allAttendance.filter(inCohort);
+    submissions = allSubmissions.filter(inCohort);
+}
+
+// ── Filter buttons (según el cuatrimestre) ────────────────────
 function filterButtons(attr, items, activeValue) {
     return items.map(({ value, label }) =>
         `<button class="filter-btn${value === activeValue ? ' active' : ''}" data-${attr}="${value}">${label}</button>`
     ).join('');
 }
-const comisionFilters = COMISIONES.map(c => ({ value: c.key, label: c.shortLabel }));
-document.getElementById('att-filters').innerHTML =
-    filterButtons('class-filter', CLASSES.map(c => ({ value: c.key, label: c.label })), activeClass) +
-    '<div class="filter-separator"></div>' +
-    filterButtons('com-filter', [{ value: 'all', label: 'Todas' }, ...comisionFilters], activeCom);
-document.getElementById('sub-filters').innerHTML =
-    filterButtons('sub-com', [{ value: 'all', label: 'Todas las comisiones' }, ...comisionFilters], activeSubCom);
-document.getElementById('students-filters').innerHTML =
-    filterButtons('students-com', [{ value: 'all', label: 'Todas' }, ...comisionFilters], activeStudentsCom);
+function renderFilters() {
+    const comisionFilters = cohort.COMISIONES.map(c => ({ value: c.key, label: c.shortLabel }));
+    document.getElementById('att-filters').innerHTML =
+        filterButtons('class-filter', cohort.CLASSES.map(c => ({ value: c.key, label: c.label })), activeClass) +
+        '<div class="filter-separator"></div>' +
+        filterButtons('com-filter', [{ value: 'all', label: 'Todas' }, ...comisionFilters], activeCom);
+    document.getElementById('sub-filters').innerHTML =
+        filterButtons('sub-com', [{ value: 'all', label: 'Todas las comisiones' }, ...comisionFilters], activeSubCom);
+    document.getElementById('students-filters').innerHTML =
+        filterButtons('students-com', [{ value: 'all', label: 'Todas' }, ...comisionFilters], activeStudentsCom);
+}
+renderFilters();
+
+// ── Selector de cuatrimestre ──────────────────────────────────
+const cohortSelect = document.getElementById('cohort-select');
+cohortSelect.innerHTML = COHORTS.map((c, i) =>
+    `<option value="${c.id}">${cohortLabel(c.id)}${i === 0 ? ' (actual)' : ''}</option>`
+).join('');
+
+function selectCohort(id) {
+    cohort = COHORTS.find(c => c.id === id) || COHORTS[0];
+    cohortSelect.value = cohort.id;
+    activeClass = cohort.CLASSES[0].key;
+    activeCom = activeSubCom = activeStudentsCom = 'all';
+    closeStudentPanel();
+    const banner = document.getElementById('past-cohort-banner');
+    banner.hidden = cohort === COHORTS[0];
+    document.getElementById('past-cohort-label').textContent = cohortLabel(cohort.id);
+    renderFilters();
+    applyCohort();
+    renderAttendance();
+    renderSubmissions();
+    renderStudents();
+}
+cohortSelect.addEventListener('change', () => selectCohort(cohortSelect.value));
+document.getElementById('past-cohort-back').addEventListener('click', () => selectCohort(COHORTS[0].id));
 
 // ── Login ─────────────────────────────────────────────────────
 const PASS = 'hike2026';
@@ -138,13 +188,15 @@ function initFirebase() {
         document.getElementById('sync-label').textContent = 'En vivo';
 
         onSnapshot(query(collection(db, 'attendance'), orderBy('timestamp', 'desc')), snap => {
-            attendance = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(belongsToCohort);
+            allAttendance = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            applyCohort();
             renderAttendance();
             renderStudents();
             if (openStudentName) renderNotesDrawer(openStudentName);
         });
         onSnapshot(query(collection(db, 'submissions'), orderBy('timestamp', 'desc')), snap => {
-            submissions = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(belongsToCohort);
+            allSubmissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            applyCohort();
             renderSubmissions();
             renderStudents();
             if (openStudentName) renderNotesDrawer(openStudentName);
@@ -194,32 +246,33 @@ document.getElementById('sub-grid').addEventListener('change', async (e) => {
     }
 });
 
-// ── Attendance filters ────────────────────────────────────────
-document.querySelectorAll('[data-class-filter]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-class-filter]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+// ── Filters (delegados: los botones se regeneran al cambiar de cuatrimestre) ──
+function setActiveFilter(selector, btn) {
+    document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+// Attendance filters
+document.getElementById('att-filters').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    if (btn.dataset.classFilter) {
+        setActiveFilter('[data-class-filter]', btn);
         activeClass = btn.dataset.classFilter;
-        renderAttendance();
-    });
-});
-document.querySelectorAll('[data-com-filter]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-com-filter]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    } else if (btn.dataset.comFilter) {
+        setActiveFilter('[data-com-filter]', btn);
         activeCom = btn.dataset.comFilter;
-        renderAttendance();
-    });
+    }
+    renderAttendance();
 });
 
-// ── Submissions filters ───────────────────────────────────────
-document.querySelectorAll('[data-sub-com]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-sub-com]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeSubCom = btn.dataset.subCom;
-        renderSubmissions();
-    });
+// Submissions filters
+document.getElementById('sub-filters').addEventListener('click', e => {
+    const btn = e.target.closest('[data-sub-com]');
+    if (!btn) return;
+    setActiveFilter('[data-sub-com]', btn);
+    activeSubCom = btn.dataset.subCom;
+    renderSubmissions();
 });
 
 // ── Grade helper ─────────────────────────────────────────────
@@ -254,20 +307,19 @@ function updateGradePicker() {
 }
 
 // ── Students filter ───────────────────────────────────────────
-document.querySelectorAll('[data-students-com]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-students-com]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeStudentsCom = btn.dataset.studentsCom;
-        renderStudents();
-    });
+document.getElementById('students-filters').addEventListener('click', e => {
+    const btn = e.target.closest('[data-students-com]');
+    if (!btn) return;
+    setActiveFilter('[data-students-com]', btn);
+    activeStudentsCom = btn.dataset.studentsCom;
+    renderStudents();
 });
 
 // ── CSV Export ────────────────────────────────────────────────
 document.getElementById('export-csv-btn').addEventListener('click', () => {
-    const rows = [['Nombre', 'Comisión', ...CLASSES.map((c, i) => `Clase ${i + 1}`), 'Entrega']];
+    const rows = [['Nombre', 'Comisión', ...cohort.CLASSES.map((c, i) => `Clase ${i + 1}`), 'Entrega']];
     studentsOf('all').forEach(s => {
-        const cls = CLASSES.map(c => {
+        const cls = cohort.CLASSES.map(c => {
             const rec = attendance.find(a => a.nombre === s.name && a.clase === c.key);
             return rec ? 'Presente' : 'Ausente';
         });
@@ -276,7 +328,7 @@ document.getElementById('export-csv-btn').addEventListener('click', () => {
         );
         rows.push([s.name, s.com, ...cls, hasSub ? 'Entregado' : 'Pendiente']);
     });
-    downloadCsv(rows, `asistencia-austral-${new Date().toISOString().slice(0,10)}.csv`);
+    downloadCsv(rows, `asistencia-austral-${cohort.id}-${new Date().toISOString().slice(0,10)}.csv`);
 });
 
 // ── CSV Export Grades ─────────────────────────────────────────
@@ -289,7 +341,7 @@ document.getElementById('export-grades-btn').addEventListener('click', () => {
         const grade = getStudentGrade(s.name);
         rows.push([s.name, s.com, grade !== null ? grade : '—']);
     });
-    downloadCsv(rows, `notas-austral-${new Date().toISOString().slice(0,10)}.csv`);
+    downloadCsv(rows, `notas-austral-${cohort.id}-${new Date().toISOString().slice(0,10)}.csv`);
 });
 
 // ── Render Attendance ─────────────────────────────────────────
@@ -349,7 +401,7 @@ function renderSubmissions() {
             <div class="scorecard-value">${submissions.length}</div>
             <div class="scorecard-sub">grupos en total</div>
         </div>
-        ${COMISIONES.map(c => `
+        ${cohort.COMISIONES.map(c => `
         <div class="scorecard">
             <div class="scorecard-label">${c.shortLabel}</div>
             <div class="scorecard-value">${submissions.filter(s => s.comision === c.key).length}</div>
@@ -433,7 +485,7 @@ function renderStudents() {
         const initials = s.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 
         // Attendance dots per class
-        const dots = CLASSES.map(c => {
+        const dots = cohort.CLASSES.map(c => {
             const present = attendance.some(a => a.nombre === s.name && a.clase === c.key);
             return `<span class="dot ${present ? 'dot-present' : 'dot-absent'}" title="${c.label}"></span>`;
         }).join('');
@@ -495,14 +547,14 @@ function renderNotesDrawer(name) {
     document.getElementById('notes-avatar').textContent = initials;
 
     // Stats
-    const attCount = CLASSES.filter(c => attendance.some(a => a.nombre === name && a.clase === c.key)).length;
+    const attCount = cohort.CLASSES.filter(c => attendance.some(a => a.nombre === name && a.clase === c.key)).length;
     const hasSub = submissions.some(sub => (sub.integrantes || []).some(i => i.nombre === name));
     const subGroup = submissions.find(sub => (sub.integrantes || []).some(i => i.nombre === name));
-    const pct = Math.round(attCount / CLASSES.length * 100);
+    const pct = Math.round(attCount / cohort.CLASSES.length * 100);
     document.getElementById('notes-stats').innerHTML = `
         <div class="notes-stat">
             <div class="notes-stat-label">Clases</div>
-            <div class="notes-stat-val ${attCount > 0 ? 'green' : 'red'}">${attCount}/${CLASSES.length}</div>
+            <div class="notes-stat-val ${attCount > 0 ? 'green' : 'red'}">${attCount}/${cohort.CLASSES.length}</div>
         </div>
         <div class="notes-stat">
             <div class="notes-stat-label">Asistencia</div>
@@ -519,7 +571,7 @@ function renderNotesDrawer(name) {
     `;
 
     // Classes detail
-    document.getElementById('notes-classes').innerHTML = CLASSES.map(c => {
+    document.getElementById('notes-classes').innerHTML = cohort.CLASSES.map(c => {
         const rec = attendance.find(a => a.nombre === name && a.clase === c.key);
         const present = !!rec;
         const tsStr = formatTimestamp(rec?.timestamp, '');

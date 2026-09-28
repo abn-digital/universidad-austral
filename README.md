@@ -20,6 +20,7 @@ index.html          Portal de alumnos: consigna, herramientas, calendario, entre
 admin.html          Panel docente (tiene sus estilos inline)
 src/
 ├── cohort.js       Config del cuatrimestre: alumnos, comisiones, clases, deadline, Apps Script
+├── cohorts-anteriores.js  Cuatrimestres anteriores, para consultarlos desde el panel docente
 ├── main.js         Lógica del portal (entrega, edición por código, asistencia, mini-dashboard)
 ├── admin.js        Lógica del panel docente
 ├── firebase.js     Inicialización del SDK
@@ -84,12 +85,14 @@ Para que cada push a `main` se deploye solo: crear una service account con rol "
 - **Entregas:** proyectos por comisión, con el código de edición de cada grupo (🔑, por si alguno lo olvida) y la nota del proyecto.
 - **Detalle por alumno:** asistencia, entrega, nota individual y comentarios. Exporta CSV de notas.
 - **Nota final** = la mayor entre la nota individual y la mejor nota de proyecto del alumno.
+- **Cuatrimestres anteriores:** el selector "Cuatrimestre" del encabezado cambia todo el panel (asistencia, proyectos, alumnos, notas y CSV) a un cuatrimestre anterior. Una franja amarilla avisa que no es el actual; las notas que cargues ahí se guardan en ese cuatrimestre.
 
 ---
 
 ## 🔄 Sumar un cuatrimestre nuevo
 
 1. **Guardar lo anterior:** exportar desde el admin los CSV de asistencia y de notas, y marcar el código actual (`git tag q1-2026`, o el que corresponda).
+   Para que el cuatrimestre que termina se pueda seguir viendo desde el panel, agregá al principio de `PAST_COHORTS` (en `src/cohorts-anteriores.js`) su `id` (el `COHORT_ID`), sus `CLASSES` y sus `COMISIONES` (alcanza con los nombres de los alumnos).
 2. **`src/cohort.js`** — todo lo que usan el portal y el admin:
    - `COHORT_ID`: el cuatrimestre nuevo, p. ej. `'2026-Q2'`. **No cambiar** `LEGACY_COHORT_ID`.
    - `COMISIONES`: `key`, `label` (selects del portal), `shortLabel` (filtros del admin) y `students` (`name` + `email`).
